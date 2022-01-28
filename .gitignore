@@ -1,4 +1,2 @@
 target
-report/*
-!report/report.tex
-!report/univ-logo.png
+report/report.log

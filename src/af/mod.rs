@@ -1,6 +1,7 @@
 mod argument;
 mod attack;
 
+use std::fmt;
 pub use argument::Argument;
 pub use attack::Attack;
 use crate::logic::{
@@ -15,7 +16,7 @@ pub struct AF {
 }
 
 impl AF {
-    pub fn from(args: Vec<&str>, attacks: Vec<(&str, &str)>) -> Self {
+    fn from(args: Vec<&str>, attacks: Vec<(&str, &str)>) -> Self {
         Self {
             arguments: args
                 .iter()
@@ -29,6 +30,26 @@ impl AF {
                 ))
                 .collect(),
         }
+    }
+    pub fn from_tgf(tgf: &str) -> Self {
+        let arg_att = tgf.split("#").collect::<Vec<_>>();
+        let args = arg_att[0]
+            .lines()
+            .filter(|&s| !s.is_empty())
+            .map(|s| s.split(" ").next().unwrap())
+            .collect::<Vec<_>>();
+        let attacks = arg_att[1]
+            .lines()
+            .filter(|&s| !s.is_empty())
+            .map(|s| {
+                let mut iter = s.split(" ");
+                (
+                    iter.next().unwrap(),
+                    iter.next().unwrap(),
+                )
+            })
+            .collect::<Vec<_>>();
+        Self::from(args, attacks)
     }
     pub fn to_cnf(&self) -> CNF {
         let mut cnf = CNF(vec![]);
@@ -61,5 +82,24 @@ impl AF {
             }
         }
         cnf
+    }
+}
+
+impl fmt::Display for AF {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}\n{}",
+            self.arguments
+                .iter()
+                .map(|arg| format!("{}", arg))
+                .collect::<Vec<_>>()
+                .join("\n"),
+            self.attacks
+                .iter()
+                .map(|attack| format!("{}", attack))
+                .collect::<Vec<_>>()
+                .join("\n"),
+        )
     }
 }

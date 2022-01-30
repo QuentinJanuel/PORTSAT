@@ -1,19 +1,24 @@
 mod logic;
 mod af;
+mod utils;
+mod problem;
 
 use af::AF;
 
+fn details() {
+    let name = env!("CARGO_PKG_NAME");
+    let version = env!("CARGO_PKG_VERSION");
+    let author = env!("CARGO_PKG_AUTHORS")
+        .split(":")
+        .collect::<Vec<_>>()
+        .join(", ");
+    println!("{} v{}\n{}", name, version, author);
+}
+
 fn main() {
-    let af = AF::from(
-        vec!["a", "b", "c", "d", "e"],
-        vec![
-            ("a", "b"),
-            ("b", "a"),
-            ("b", "c"),
-            ("c", "d"),
-            ("d", "e"),
-            ("e", "c"),
-        ],
-    );
-    println!("{}", af.to_cnf());
+    details();
+    let tgf = utils::read_file("examples/tgf.txt");
+    let af = AF::from_tgf(&tgf);
+    println!("{}", af);
+    problem::all_problems();
 }

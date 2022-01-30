@@ -2,5 +2,10 @@
 name = "ter"
 version = "0.1.0"
 edition = "2018"
+authors = [
+    "Christophe Yang",
+    "Quentin Januel",
+    "Sylvain Declercq",
+]
 
 [dependencies]

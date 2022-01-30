@@ -25,7 +25,7 @@ fn main() {
         println!("Problem: {}", problem);
         println!("Additional param: {}", param);
         println!("AF:\n{}", af);
-        println!("LF:\n{:?}", lf);
+        println!("LF:\n{}", lf);
     } else {
         utils::details();
     }

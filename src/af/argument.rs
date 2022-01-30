@@ -1,5 +1,6 @@
 use std::fmt;
 
+#[derive(PartialEq)]
 pub struct Argument(pub String);
 
 impl fmt::Display for Argument {

@@ -51,8 +51,72 @@ impl AF {
             .collect::<Vec<_>>();
         Self::from(args, attacks)
     }
+    fn phi_cf(&self) -> LF {
+        let attacks = self.attacks
+            .iter()
+            .map(|attack| {
+                let a = LF::Atom(attack.0.to_string());
+                let b = LF::Atom(attack.1.to_string());
+                let conj = LF::And(vec![a, b]);
+                LF::Not(Box::new(conj))
+            })
+            .collect();
+        LF::And(attacks)
+    }
+    pub fn phi_st(&self) -> LF {
+        let args = self.arguments
+            .iter()
+            .map(|a| {
+                let atom = LF::Atom(a.to_string());
+                let conj = self.attacks
+                    .iter()
+                    .filter(|attack| &attack.1 == a)
+                    .map(|attack| {
+                        let b = LF::Atom(attack.0.to_string());
+                        LF::Not(Box::new(b))
+                    })
+                    .collect();
+                let conj = LF::And(conj);
+                LF::Equiv(Box::new(atom), Box::new(conj))
+            })
+            .collect();
+        LF::And(args)
+    }
+    pub fn phi_co(&self) -> LF {
+        let mut args: Vec<LF> = self.arguments
+            .iter()
+            .map(|a| {
+                let atom_a = LF::Atom(a.to_string());
+                let conj = self.attacks
+                    .iter()
+                    .filter(|att1| &att1.1 == a)
+                    .map(|att1| {
+                        let b = &att1.0;
+                        let disj = self.attacks
+                            .iter()
+                            .filter(|att2| &att2.1 == b)
+                            .map(|att2| {
+                                let c = &att2.0;
+                                let atom_c = LF::Atom(c.to_string());
+                                atom_c
+                            })
+                            .collect();
+                        let disj = LF::Or(disj);
+                        disj
+                    })
+                    .collect();
+                let conj = LF::And(conj);
+                LF::Equiv(Box::new(atom_a), Box::new(conj))
+            })
+            .collect();
+        args.push(self.phi_cf());
+        LF::And(args)
+    }
     pub fn phi(&self, semantics: &Semantics) -> LF {
-        LF::Atom("hello".to_string())
+        match semantics {
+            Semantics::Stable => self.phi_st(),
+            _ => self.phi_co(),
+        }
     }
 }
 
@@ -63,12 +127,12 @@ impl fmt::Display for AF {
             "{}\n{}",
             self.arguments
                 .iter()
-                .map(|arg| format!("{}", arg))
+                .map(Argument::to_string)
                 .collect::<Vec<_>>()
                 .join("\n"),
             self.attacks
                 .iter()
-                .map(|attack| format!("{}", attack))
+                .map(Attack::to_string)
                 .collect::<Vec<_>>()
                 .join("\n"),
         )

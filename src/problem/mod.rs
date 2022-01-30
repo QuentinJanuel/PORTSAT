@@ -61,7 +61,7 @@ pub fn all_problems() {
         "[{}]",
         all_problems
             .iter()
-            .map(|problem| format!("{}", problem))
+            .map(Problem::to_string)
             .collect::<Vec<_>>()
             .join(","),
     );

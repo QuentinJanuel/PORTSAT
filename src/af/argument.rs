@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 pub struct Argument(pub String);
 
 impl fmt::Display for Argument {

@@ -1,12 +1,13 @@
 use std::{
     fmt,
-    str::FromStr,
+    convert::From,
 };
+use crate::af::Argument;
 
 #[derive(Clone)]
 pub enum Task {
-    Credulous,
-    Skeptical,
+    Credulous(Argument),
+    Skeptical(Argument),
     Enumerate,
     FindOne,
 }
@@ -14,23 +15,25 @@ pub enum Task {
 impl fmt::Display for Task {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Credulous => write!(f, "DC"),
-            Self::Skeptical => write!(f, "DS"),
+            Self::Credulous(_) => write!(f, "DC"),
+            Self::Skeptical(_) => write!(f, "DS"),
             Self::Enumerate => write!(f, "EE"),
             Self::FindOne => write!(f, "SE"),
         }
     }
 }
 
-impl FromStr for Task {
-    type Err = ();
-    fn from_str(input: &str) -> Result<Self, Self::Err> {
-        match input {
-            "DC" => Ok(Self::Credulous),
-            "DS" => Ok(Self::Skeptical),
-            "EE" => Ok(Self::Enumerate),
-            "SE" => Ok(Self::FindOne),
-            _ => Err(()),
+impl From<(&str, Option<&str>)> for Task {
+    fn from((task, arg): (&str, Option<&str>)) -> Self {
+        let arg = arg.map(|arg| Argument(arg.to_string()));
+        match (task, arg) {
+            ("DC", Some(arg)) => Self::Credulous(arg),
+            ("DS", Some(arg)) => Self::Skeptical(arg),
+            ("DC", None) => panic!("The argument is not specified"),
+            ("DS", None) => panic!("The argument is not specified"),
+            ("EE", _) => Self::Enumerate,
+            ("SE", _) => Self::FindOne,
+            _ => panic!("Invalid task"),
         }
     }
 }

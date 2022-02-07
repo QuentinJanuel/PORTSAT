@@ -1,9 +1,10 @@
 mod semantics;
 mod task;
 
+use crate::af::Argument;
 use std::{
     fmt,
-    str::FromStr,
+    convert::From,
 };
 pub use semantics::Semantics;
 pub use task::Task;
@@ -19,24 +20,31 @@ impl fmt::Display for Problem {
     }
 }
 
-impl FromStr for Problem {
-    type Err = ();
-    fn from_str(input: &str) -> Result<Self, Self::Err> {
+impl From<(&str, Option<&str>)> for Problem {
+    fn from((input, arg): (&str, Option<&str>)) -> Self {
         let mut parts = input.split("-");
-        let task = parts.next().ok_or(())?.parse()?;
-        let semantics = parts.next().ok_or(())?.parse()?;
-        Ok(Self {
+        let task = parts
+            .next()
+            .ok_or(())
+            .map(|task| (task, arg).into())
+            .expect("Invalid task");
+        let semantics = parts
+            .next()
+            .expect("")
+            .parse()
+            .expect("Invalid semantics");
+        Self {
             task,
             semantics,
-        })
+        }
     }
 }
 
 
 pub fn all_problems() {
     let all_tasks = vec![
-        Task::Credulous,
-        Task::Skeptical,
+        Task::Credulous(Argument(String::new())),
+        Task::Skeptical(Argument(String::new())),
         Task::Enumerate,
         Task::FindOne,
     ];

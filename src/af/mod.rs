@@ -116,17 +116,17 @@ impl AF {
         args.push(self.phi_cf());
         LF::And(args)
     }
-    pub fn phi(&self, problem: &Problem, param: &str) -> LF {
+    pub fn phi(&self, problem: &Problem) -> LF {
         let base = match problem.semantics {
             Semantics::Stable => self.phi_st(),
             _ => self.phi_co(),
         };
-        match problem.task {
-            Task::Credulous => LF::And(vec![
+        match &problem.task {
+            Task::Credulous(param) => LF::And(vec![
                 base,
                 LF::Atom(param.to_string()),
             ]),
-            Task::Skeptical => LF::And(vec![
+            Task::Skeptical(param) => LF::And(vec![
                 base,
                 LF::Not(Box::new(
                     LF::Atom(param.to_string()),

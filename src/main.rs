@@ -21,7 +21,7 @@ fn main() {
         let param = args.get("-a").unwrap_or("");
         let tgf = utils::read_file(file);
         let af = AF::from_tgf(&tgf);
-        let lf = af.phi(&problem.semantics);
+        let lf = af.phi(&problem, param);
         println!("Problem: {}", problem);
         println!("Additional param: {}", param);
         println!("AF:\n{}", af);

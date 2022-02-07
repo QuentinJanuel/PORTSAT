@@ -6,7 +6,11 @@ pub use argument::Argument;
 pub use attack::Attack;
 use crate::{
     lf::LF,
-    problem::Semantics,
+    problem::{
+        Problem,
+        Semantics,
+        Task,
+    },
 };
 
 // Argumentation Framework
@@ -112,10 +116,23 @@ impl AF {
         args.push(self.phi_cf());
         LF::And(args)
     }
-    pub fn phi(&self, semantics: &Semantics) -> LF {
-        match semantics {
+    pub fn phi(&self, problem: &Problem, param: &str) -> LF {
+        let base = match problem.semantics {
             Semantics::Stable => self.phi_st(),
             _ => self.phi_co(),
+        };
+        match problem.task {
+            Task::Credulous => LF::And(vec![
+                base,
+                LF::Atom(param.to_string()),
+            ]),
+            Task::Skeptical => LF::And(vec![
+                base,
+                LF::Not(Box::new(
+                    LF::Atom(param.to_string()),
+                )),
+            ]),
+            _ => base,
         }
     }
 }

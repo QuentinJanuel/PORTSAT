@@ -5,8 +5,9 @@ mod problem;
 
 use af::AF;
 use utils::args::Args;
+use std::convert::TryInto;
 
-fn main() {
+fn main() -> Result<(), &'static str> {
     let args = Args::new();
     if args.has("--problems") {
         problem::all_problems();
@@ -14,9 +15,9 @@ fn main() {
         println!("[tgf]");
     } else if let Some(problem) = args.get("-p") {
         let param = args.get("-a");
-        let problem = (problem, param).into();
+        let problem = (problem, param).try_into()?;
         let file = args.get("-f")
-            .expect("The file is not specified");
+            .ok_or("The file is not specified")?;
         let tgf = utils::read_file(file);
         let af = AF::from_tgf(&tgf);
         let lf = af.phi(&problem);
@@ -26,4 +27,5 @@ fn main() {
     } else {
         utils::details();
     }
+    Ok(())
 }

@@ -1,6 +1,6 @@
 use std::{
     fmt,
-    str::FromStr,
+    convert::TryFrom,
 };
 
 #[derive(Clone)]
@@ -22,15 +22,15 @@ impl fmt::Display for Semantics {
     }
 }
 
-impl FromStr for Semantics {
-    type Err = ();
-    fn from_str(input: &str) -> Result<Self, Self::Err> {
+impl TryFrom<&str> for Semantics {
+    type Error = &'static str;
+    fn try_from(input: &str) -> Result<Self, Self::Error> {
         match input {
             "CO" => Ok(Self::Complete),
             "GR" => Ok(Self::Grounded),
             "PR" => Ok(Self::Preferred),
             "ST" => Ok(Self::Stable),
-            _ => Err(()),
+            _ => Err("Invalid semantics"),
         }
     }
 }

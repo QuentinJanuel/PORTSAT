@@ -18,6 +18,8 @@ impl Args {
             .args
             .iter()
             .position(|a| a == arg);
-        pos.map(|i| self.args[i + 1].as_str())
+        pos
+            .and_then(|i| self.args.get(i + 1))
+            .map(String::as_str)
     }
 }

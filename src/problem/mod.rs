@@ -4,7 +4,7 @@ mod task;
 use crate::af::Argument;
 use std::{
     fmt,
-    convert::From,
+    convert::TryFrom,
 };
 pub use semantics::Semantics;
 pub use task::Task;
@@ -20,23 +20,22 @@ impl fmt::Display for Problem {
     }
 }
 
-impl From<(&str, Option<&str>)> for Problem {
-    fn from((input, arg): (&str, Option<&str>)) -> Self {
+impl TryFrom<(&str, Option<&str>)> for Problem {
+    type Error = &'static str;
+    fn try_from((input, arg): (&str, Option<&str>)) -> Result<Self, Self::Error> {
         let mut parts = input.split("-");
         let task = parts
             .next()
-            .ok_or(())
-            .map(|task| (task, arg).into())
-            .expect("Invalid task");
+            .ok_or("The task is not specified")?;
+        let task = Task::try_from((task, arg))?;
         let semantics = parts
             .next()
-            .expect("")
-            .parse()
-            .expect("Invalid semantics");
-        Self {
+            .ok_or("The semantics is not specified")?;
+        let semantics = Semantics::try_from(semantics)?;
+        Ok(Self {
             task,
             semantics,
-        }
+        })
     }
 }
 

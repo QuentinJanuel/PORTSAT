@@ -1,6 +1,6 @@
 use std::{
     fmt,
-    convert::From,
+    convert::TryFrom,
 };
 use crate::af::Argument;
 
@@ -23,17 +23,18 @@ impl fmt::Display for Task {
     }
 }
 
-impl From<(&str, Option<&str>)> for Task {
-    fn from((task, arg): (&str, Option<&str>)) -> Self {
+impl TryFrom<(&str, Option<&str>)> for Task {
+    type Error = &'static str;
+    fn try_from((task, arg): (&str, Option<&str>)) -> Result<Self, Self::Error> {
         let arg = arg.map(|arg| Argument(arg.to_string()));
         match (task, arg) {
-            ("DC", Some(arg)) => Self::Credulous(arg),
-            ("DS", Some(arg)) => Self::Skeptical(arg),
-            ("DC", None) => panic!("The argument is not specified"),
-            ("DS", None) => panic!("The argument is not specified"),
-            ("EE", _) => Self::Enumerate,
-            ("SE", _) => Self::FindOne,
-            _ => panic!("Invalid task"),
+            ("DC", Some(arg)) => Ok(Self::Credulous(arg)),
+            ("DS", Some(arg)) => Ok(Self::Skeptical(arg)),
+            ("DC", None) => Err("The argument is not specified"),
+            ("DS", None) => Err("The argument is not specified"),
+            ("EE", _) => Ok(Self::Enumerate),
+            ("SE", _) => Ok(Self::FindOne),
+            _ => Err("Invalid task"),
         }
     }
 }

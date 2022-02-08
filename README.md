@@ -23,5 +23,5 @@ cargo run -- -p <problem> -f <file> -fo <fileformat> [-a <additional_parameter>]
 ```
 Example:
 ```
-cargo run -- -p DC-CO -f examples/tgf.txt -fo tgf
+cargo run -- -p DC-CO -f examples/tgf.txt -fo tgf -a a
 ```

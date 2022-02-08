@@ -7,5 +7,6 @@ authors = [
     "Quentin Januel",
     "Sylvain Declercq",
 ]
+license = "MIT"
 
 [dependencies]

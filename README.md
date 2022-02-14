@@ -1,4 +1,4 @@
-# SAT solver portfolio
+# Computational model of argumentation
 
 You can use the solver as described in the ICCMA'15 Supplementary Notes on probo:
 

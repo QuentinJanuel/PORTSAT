@@ -5,11 +5,13 @@ use std::{
     io::Read,
 };
 
-pub fn read_file(path: &str) -> String {
-    let mut file = File::open(path).unwrap();
+pub fn read_file(path: &str) -> Result<String, String> {
+    let mut file = File::open(path)
+        .map_err(|e| format!("{}", e))?;
     let mut contents = String::new();
-    file.read_to_string(&mut contents).unwrap();
-    contents
+    file.read_to_string(&mut contents)
+        .map_err(|e| format!("{}", e))?;
+    Ok(contents)
 }
 
 pub fn details() {

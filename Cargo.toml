@@ -10,3 +10,4 @@ authors = [
 license = "MIT"
 
 [dependencies]
+sat_portfolio = { git = "https://github.com/QuentinJanuel/sat-portfolio" }

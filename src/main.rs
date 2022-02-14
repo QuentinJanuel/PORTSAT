@@ -1,4 +1,3 @@
-mod lf;
 mod af;
 mod utils;
 mod problem;
@@ -7,7 +6,7 @@ use af::AF;
 use utils::args::Args;
 use std::convert::TryInto;
 
-fn main() -> Result<(), &'static str> {
+fn main() -> Result<(), String> {
     let args = Args::new();
     if args.has("--problems") {
         problem::all_problems();
@@ -18,12 +17,12 @@ fn main() -> Result<(), &'static str> {
         let problem = (problem, param).try_into()?;
         let file = args.get("-f")
             .ok_or("The file is not specified")?;
-        let tgf = utils::read_file(file);
+        let tgf = utils::read_file(file)?;
         let af = AF::from_tgf(&tgf);
-        let lf = af.phi(&problem);
+        let cnf = af.phi(&problem);
         println!("Problem: {}", problem);
         println!("AF:\n{}", af);
-        println!("LF:\n{}", lf);
+        println!("cnf:\n{}", cnf);
     } else {
         utils::details();
     }

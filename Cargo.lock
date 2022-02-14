@@ -3,5 +3,13 @@
 version = 3
 
 [[package]]
+name = "sat_portfolio"
+version = "0.1.0"
+source = "git+https://github.com/QuentinJanuel/sat-portfolio#7183c65026b5c192858a7161f1aa84163fc2f0b4"
+
+[[package]]
 name = "ter"
 version = "0.1.0"
+dependencies = [
+ "sat_portfolio",
+]

@@ -64,7 +64,7 @@ Let $F := (A, R)$ be an Argumentation Framework and $S \subset A$, then $S$ is
 
 \item \textbf{conflict-free} if for all $(a, b)$ in $S^2$, $(a, b)$ is not in $R$.
 $$
-\phi_{cf}(F) = \bigwedge_{(a, b) \in R} \lnot (a \land b)
+\phi_{cf}(F) = \bigwedge_{(a, b) \in R} \lnot a \lor \lnot b
 $$
 \item \textbf{admissible} if $S$ is conflict-free and defends all its arguments.
 $$

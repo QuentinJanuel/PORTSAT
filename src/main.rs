@@ -22,7 +22,19 @@ fn main() -> Result<(), String> {
         let cnf = af.phi(&problem);
         println!("Problem: {}", problem);
         println!("AF:\n{}", af);
-        println!("cnf:\n{}", cnf);
+        // println!("cnf:\n{}", cnf);
+        use sat_portfolio::solver::{
+            Solver,
+            dpll::DPLL,
+        };
+        let solver = DPLL::new();
+        let models = solver.get_all_models(&cnf);
+        for model in &models {
+            println!("{}", model);
+        }
+        if models.is_empty() {
+            println!("No solution");
+        }
     } else {
         utils::details();
     }

@@ -15,6 +15,7 @@ use sat_portfolio::cnf::{
     CNF,
     Clause,
     Lit,
+    Var,
 };
 
 // Argumentation Framework
@@ -59,75 +60,39 @@ impl AF {
             .collect::<Vec<_>>();
         Self::from(args, attacks)
     }
-    fn phi_cf(&self) -> CNF {
-        // let attacks = self.attacks
-        //     .iter()
-        //     .map(|attack| {
-        //         let a = LF::Atom(attack.0.to_string());
-        //         let b = LF::Atom(attack.1.to_string());
-        //         let conj = LF::And(vec![a, b]);
-        //         LF::Not(Box::new(conj))
-        //     })
-        //     .collect();
-        // LF::And(attacks)
-        CNF::new()
-    }
     pub fn phi_st(&self) -> CNF {
-        // let args = self.arguments
-        //     .iter()
-        //     .map(|a| {
-        //         let atom = LF::Atom(a.to_string());
-        //         let conj = self.attacks
-        //             .iter()
-        //             .filter(|attack| &attack.1 == a)
-        //             .map(|attack| {
-        //                 let b = LF::Atom(attack.0.to_string());
-        //                 LF::Not(Box::new(b))
-        //             })
-        //             .collect();
-        //         let conj = LF::And(conj);
-        //         LF::Equiv(Box::new(atom), Box::new(conj))
-        //     })
-        //     .collect();
-        // LF::And(args)
-        CNF::new()
+        let mut cnf = CNF::new();
+        for (ind_a, a) in self.arguments.iter().enumerate() {
+            let mut clause1 = Clause::new();
+            let var_a = Var(ind_a as u32);
+            clause1.add(Lit::pos(var_a));
+            for (ind_b, b) in self.arguments.iter().enumerate() {
+                let b_attacks_a = self.attacks.iter()
+                        .any(|att| att.0 == *b && att.1 == *a);
+                if !b_attacks_a {
+                    continue;
+                }
+                let var_b = Var(ind_b as u32);
+                clause1.add(Lit::pos(var_b));
+                let mut clause2 = Clause::new();
+                clause2.add(Lit::neg(var_a));
+                clause2.add(Lit::neg(var_b));
+                cnf.add_clause(clause2);
+            }
+            cnf.add_clause(clause1);
+        }
+        cnf
     }
     pub fn phi_co(&self) -> CNF {
-        // let mut args: Vec<LF> = self.arguments
-        //     .iter()
-        //     .map(|a| {
-        //         let atom_a = LF::Atom(a.to_string());
-        //         let conj = self.attacks
-        //             .iter()
-        //             .filter(|att1| &att1.1 == a)
-        //             .map(|att1| {
-        //                 let b = &att1.0;
-        //                 let disj = self.attacks
-        //                     .iter()
-        //                     .filter(|att2| &att2.1 == b)
-        //                     .map(|att2| {
-        //                         let c = &att2.0;
-        //                         let atom_c = LF::Atom(c.to_string());
-        //                         atom_c
-        //                     })
-        //                     .collect();
-        //                 let disj = LF::Or(disj);
-        //                 disj
-        //             })
-        //             .collect();
-        //         let conj = LF::And(conj);
-        //         LF::Equiv(Box::new(atom_a), Box::new(conj))
-        //     })
-        //     .collect();
-        // args.push(self.phi_cf());
-        // LF::And(args)
-        CNF::new()
+        let cnf = CNF::new();
+        cnf
     }
     pub fn phi(&self, problem: &Problem) -> CNF {
-        // let base = match problem.semantics {
-        //     Semantics::Stable => self.phi_st(),
-        //     _ => self.phi_co(),
-        // };
+        let base = match problem.semantics {
+            Semantics::Stable => self.phi_st(),
+            _ => self.phi_co(),
+        };
+        base
         // match &problem.task {
         //     Task::Credulous(param) => LF::And(vec![
         //         base,
@@ -141,7 +106,6 @@ impl AF {
         //     ]),
         //     _ => base,
         // }
-        CNF::new()
     }
 }
 

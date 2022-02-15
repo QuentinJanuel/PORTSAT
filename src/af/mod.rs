@@ -8,7 +8,6 @@ use crate::{
     problem::{
         Problem,
         Semantics,
-        Task,
     },
 };
 use sat_portfolio::cnf::{
@@ -60,19 +59,37 @@ impl AF {
             .collect::<Vec<_>>();
         Self::from(args, attacks)
     }
+    fn has_attack(&self, from: &Argument, to: &Argument) -> bool {
+        self.attacks.iter()
+            .any(|a| a.0 == *from && a.1 == *to)
+    }
+    fn get_var(&self, arg: &Argument) -> Var {
+        let index = self.arguments
+            .iter()
+            .position(|a| a == arg)
+            .unwrap();
+        Var(index as u32)
+    }
+    fn get_p_var(&self, arg: &Argument) -> Var {
+        let mut var = self.get_var(arg);
+        var.0 += self.arguments.len() as u32;
+        var
+    }
+    pub fn get_arg(&self, var: &Var) -> Option<&Argument> {
+        let index = var.0 as usize;
+        self.arguments.get(index)
+    }
     pub fn phi_st(&self) -> CNF {
         let mut cnf = CNF::new();
-        for (ind_a, a) in self.arguments.iter().enumerate() {
+        for a in self.arguments.iter() {
             let mut clause1 = Clause::new();
-            let var_a = Var(ind_a as u32);
+            let var_a = self.get_var(a);
             clause1.add(Lit::pos(var_a));
-            for (ind_b, b) in self.arguments.iter().enumerate() {
-                let b_attacks_a = self.attacks.iter()
-                        .any(|att| att.0 == *b && att.1 == *a);
-                if !b_attacks_a {
+            for b in self.arguments.iter()  {
+                if !self.has_attack(b, a) {
                     continue;
                 }
-                let var_b = Var(ind_b as u32);
+                let var_b = self.get_var(b);
                 clause1.add(Lit::pos(var_b));
                 let mut clause2 = Clause::new();
                 clause2.add(Lit::neg(var_a));
@@ -84,7 +101,56 @@ impl AF {
         cnf
     }
     pub fn phi_co(&self) -> CNF {
-        let cnf = CNF::new();
+        let mut cnf = CNF::new();
+        for a in self.arguments.iter() {
+            let var_a = self.get_var(a);
+            let var_p_a = self.get_p_var(a);
+            // Clause 1
+            let mut clause1 = Clause::new();
+            clause1.add(Lit::neg(var_a));
+            clause1.add(Lit::neg(var_p_a));
+            cnf.add_clause(clause1);
+            // 
+            // Clause 2
+            let mut clause2 = Clause::new();
+            clause2.add(Lit::pos(var_a));
+            // 
+            // Clause 4
+            let mut clause4 = Clause::new();
+            clause4.add(Lit::neg(var_p_a));
+            // 
+            for b in self.arguments.iter() {
+                if !self.has_attack(b, a) {
+                    continue;
+                }
+                let var_b = self.get_var(b);
+                let var_p_b = self.get_p_var(b);
+                // Clause 2
+                clause2.add(Lit::neg(var_p_b));
+                // 
+                // Clause 3
+                let mut clause3 = Clause::new();
+                clause3.add(Lit::neg(var_a));
+                clause3.add(Lit::pos(var_p_b));
+                cnf.add_clause(clause3);
+                // 
+                // Clause 4
+                clause4.add(Lit::pos(var_b));
+                // 
+                // Clause 5
+                let mut clause5 = Clause::new();
+                clause5.add(Lit::pos(var_p_a));
+                clause5.add(Lit::neg(var_b));
+                cnf.add_clause(clause5);
+                // 
+            }
+            // Clause 2
+            cnf.add_clause(clause2);
+            // 
+            // Clause 4
+            cnf.add_clause(clause4);
+            // 
+        }
         cnf
     }
     pub fn phi(&self, problem: &Problem) -> CNF {

@@ -63,7 +63,7 @@ impl AF {
         self.attacks.iter()
             .any(|a| a.0 == *from && a.1 == *to)
     }
-    fn get_var(&self, arg: &Argument) -> Var {
+    pub fn get_var(&self, arg: &Argument) -> Var {
         let index = self.arguments
             .iter()
             .position(|a| a == arg)

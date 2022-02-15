@@ -27,10 +27,15 @@ fn main() -> Result<(), String> {
         let af = AF::from_tgf(&tgf);
         let cnf = af.phi(&problem);
         let solver = Portfolio::from(vec![
-            // Box::new(Minisat::new()),
+            Box::new(Minisat::new()),
             Box::new(DPLL::new()),
         ]);
-        let models = solver.get_all_models(&cnf);
+        let models = solver.get_all_models(
+            &cnf,
+            Some(&af.arguments.iter()
+                .map(|arg| af.get_var(arg))
+                .collect()),
+        );
         for model in &models {
             println!("Extension found:");
             model.get_pos_vars().iter()

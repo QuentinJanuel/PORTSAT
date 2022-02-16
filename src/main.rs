@@ -5,11 +5,13 @@ mod problem;
 use af::AF;
 use utils::args::Args;
 use std::convert::TryInto;
-use sat_portfolio::solver::{
-    Solver,
-    minisat::Minisat,
-    dpll::DPLL,
-    portfolio::Portfolio,
+use sat_portfolio::{
+    portfolio,
+    solver::{
+        Solver,
+        minisat::Minisat,
+        dpll::DPLL,
+    },
 };
 
 fn main() -> Result<(), String> {
@@ -26,16 +28,14 @@ fn main() -> Result<(), String> {
         let tgf = utils::read_file(file)?;
         let af = AF::from_tgf(&tgf);
         let cnf = af.phi(&problem);
-        let solver = Portfolio::from(vec![
-            Box::new(Minisat::new()),
-            Box::new(DPLL::new()),
-        ]);
-        let models = solver.get_all_models(
-            &cnf,
-            Some(&af.arguments.iter()
-                .map(|arg| af.get_var(arg))
-                .collect()),
-        );
+        let solver = portfolio![
+            Minisat::new(),
+            DPLL::new(),
+        ];
+        let models = solver.get_all_models(&cnf);
+        // Some(&af.arguments.iter()
+        //     .map(|arg| af.get_var(arg))
+        //     .collect()),
         for model in &models {
             println!("Extension found:");
             model.get_pos_vars().iter()

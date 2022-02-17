@@ -88,8 +88,8 @@ pub fn solve(
                 },
             }
         },
-        Grounded => panic!("Grounded not supported yet"),
-        Preferred => panic!("Preferred not supported yet"),
+        Grounded => unimplemented!("Grounded"),
+        Preferred => unimplemented!("Preferred"),
     }
     Ok(())
 }

@@ -11,6 +11,10 @@ use crate::{
 };
 use sat_portfolio::{
     portfolio,
+    cnf::{
+        Clause,
+        Lit,
+    },
     solver::{
         Solver,
         config::ConfigAll,
@@ -60,8 +64,28 @@ pub fn solve(
                         .join(","),
                     )
                 }
-                Credulous(_arg) => todo!(),
-                Skeptical(_arg) => todo!(),
+                Credulous(arg) => {
+                    let mut cnf = cnf;
+                    cnf.add_clause(Clause::from(vec![
+                        Lit::pos(af.get_var(arg))
+                    ]));
+                    if let Some(_) = solver.solve(&cnf) {
+                        println!("YES");
+                    } else {
+                        println!("NO");
+                    }
+                },
+                Skeptical(arg) => {
+                    let mut cnf = cnf;
+                    cnf.add_clause(Clause::from(vec![
+                        Lit::neg(af.get_var(arg))
+                    ]));
+                    if let Some(_) = solver.solve(&cnf) {
+                        println!("NO");
+                    } else {
+                        println!("YES");
+                    }
+                },
             }
         },
         Grounded => panic!("Grounded not supported yet"),

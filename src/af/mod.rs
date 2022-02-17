@@ -63,7 +63,7 @@ impl AF {
         let index = self.arguments
             .iter()
             .position(|a| a == arg)
-            .unwrap();
+            .unwrap_or_else(|| panic!("Unexisting argument"));
         Var(index as u32)
     }
     fn get_p_var(&self, arg: &Argument) -> Var {

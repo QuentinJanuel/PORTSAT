@@ -25,3 +25,8 @@ Example:
 ```
 cargo run -- -p DC-CO -f examples/tgf.txt -fo tgf -a a
 ```
+
+## Compile
+```
+cargo build --release
+```

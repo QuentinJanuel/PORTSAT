@@ -1,15 +1,11 @@
 mod argument;
 mod attack;
+mod extension;
 
 use std::fmt;
 pub use argument::Argument;
 pub use attack::Attack;
-use crate::{
-    problem::{
-        Problem,
-        Semantics,
-    },
-};
+pub use extension::Extension;
 use sat_portfolio::cnf::{
     CNF,
     Clause,
@@ -152,26 +148,6 @@ impl AF {
             // 
         }
         cnf
-    }
-    pub fn phi(&self, problem: &Problem) -> CNF {
-        let base = match problem.semantics {
-            Semantics::Stable => self.phi_st(),
-            _ => self.phi_co(),
-        };
-        base
-        // match &problem.task {
-        //     Task::Credulous(param) => LF::And(vec![
-        //         base,
-        //         LF::Atom(param.to_string()),
-        //     ]),
-        //     Task::Skeptical(param) => LF::And(vec![
-        //         base,
-        //         LF::Not(Box::new(
-        //             LF::Atom(param.to_string()),
-        //         )),
-        //     ]),
-        //     _ => base,
-        // }
     }
 }
 

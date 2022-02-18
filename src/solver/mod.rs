@@ -3,8 +3,8 @@ use crate::{
         AF,
         Extension,
     },
-    problem::Problem,
     problem::{
+        Problem,
         Semantics::*,
         Task::*,
     },
@@ -17,7 +17,6 @@ use sat_portfolio::{
     },
     solver::{
         Solver,
-        config::ConfigAll,
         minisat::Minisat,
         dpll::DPLL,
     },
@@ -45,18 +44,7 @@ pub fn solve(
                     println!("NO");
                 },
                 Enumerate => {
-                    let vars = af.arguments.iter()
-                        .map(|arg| af.get_var(arg))
-                        .collect::<Vec<_>>();
-                    let config = if let Complete = &problem.semantics {
-                        ConfigAll::default().with_vars(&vars)
-                    } else {
-                        ConfigAll::default()
-                    };
-                    let models = solver.get_all_models_with_config(
-                        &cnf,
-                        &config,
-                    );
+                    let models = solver.get_all_models(&cnf);
                     println!("[{}]", models
                         .iter()
                         .map(|m| format!("{}", Extension::new(&af, m)))

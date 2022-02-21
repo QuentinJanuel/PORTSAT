@@ -3,6 +3,14 @@ pub mod args;
 use std::{
     fs::File,
     io::Read,
+    collections::HashMap,
+};
+use sat_portfolio::solver::{
+    Solver,
+    minisat::Minisat,
+    manysat::Manysat,
+    dpll::DPLL,
+    portfolio::Portfolio,
 };
 
 pub fn read_file(path: &str) -> Result<String, String> {
@@ -22,4 +30,42 @@ pub fn details() {
         .collect::<Vec<_>>()
         .join(", ");
     println!("{} v{}\n{}", name, version, author);
+}
+
+fn get_all_solvers() -> HashMap<String, Box<dyn Solver + Send>> {
+    let mut hashmap: HashMap<_, Box<dyn Solver + Send>> = HashMap::new();
+    hashmap.insert("minisat".into(), Box::new(Minisat::new()));
+    hashmap.insert("manysat".into(), Box::new(Manysat::new()));
+    hashmap.insert("dpll".into(), Box::new(DPLL::new()));
+    hashmap
+}
+
+pub fn show_available_solvers() {
+    let solvers = get_all_solvers();
+    let s = solvers.iter()
+        .map(|(name, _)| name.clone())
+        .collect::<Vec<String>>()
+        .join(",");
+    println!("[{}]", s);
+}
+
+pub fn get_solvers_from_arg(arg: Option<&str>) -> Box<dyn Solver> {
+    if let Some(solver_names) = arg {
+        let mut solvers: Vec<Box<dyn Solver + Send>> = vec![];
+        let all_solvers = get_all_solvers();
+        for solver_name in solver_names.split(',') {
+            if let Some(solver) = all_solvers.get(solver_name) {
+                solvers.push(solver.clone());
+            } else {
+                panic!("Unknown solver: {}", solver_name);
+            }
+        }
+        if solvers.len() < 1 {
+            panic!("No solver specified");
+        }
+        Box::new(Portfolio::from(solvers))
+    } else {
+        // Default solver: manysat
+        Box::new(Manysat::new())
+    }
 }

@@ -17,13 +17,18 @@ cargo run -- --formats
 cargo run -- --problems
 ```
 
+## Print the available SAT solvers
+```
+cargo run -- --solvers
+```
+
 ## Solve a given problem
 ```
-cargo run -- -p <problem> -f <file> -fo <fileformat> [-a <additional_parameter>]
+cargo run -- -p <problem> -s <solvers> -f <file> -fo <fileformat> [-a <additional_parameter>]
 ```
 Example:
 ```
-cargo run -- -p DC-CO -f examples/tgf.txt -fo tgf -a a
+cargo run -- -p DC-CO -s manysat,dpll -f examples/tgf.txt -fo tgf -a a
 ```
 
 ## Compile

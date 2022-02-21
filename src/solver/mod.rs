@@ -15,19 +15,14 @@ use sat_portfolio::{
         Clause,
         Lit,
     },
-    solver::{
-        Solver,
-        // minisat::Minisat,
-        manysat::Manysat,
-        // dpll::DPLL,
-    },
+    solver::Solver,
 };
 
 pub fn solve(
     af: AF,
     problem: Problem,
+    sat_solver: Box<dyn Solver>,
 ) -> Result<(), String> {
-    let solver = Manysat::new();
     match &problem.semantics {
         Complete | Stable => {
             let cnf = if let Complete = &problem.semantics {
@@ -36,13 +31,13 @@ pub fn solve(
                 af.phi_st()
             };
             match &problem.task {
-                FindOne => if let Some(model) = solver.solve(&cnf) {
+                FindOne => if let Some(model) = sat_solver.solve(&cnf) {
                     println!("{}", Extension::new(&af, &model));
                 } else {
                     println!("NO");
                 },
                 Enumerate => {
-                    let models = solver.get_all_models(&cnf);
+                    let models = sat_solver.get_all_models(&cnf);
                     println!("[{}]", models
                         .iter()
                         .map(|m| format!("{}", Extension::new(&af, m)))
@@ -55,7 +50,7 @@ pub fn solve(
                     cnf.add_clause(Clause::from(vec![
                         Lit::pos(af.get_var(arg))
                     ]));
-                    if let Some(_) = solver.solve(&cnf) {
+                    if let Some(_) = sat_solver.solve(&cnf) {
                         println!("YES");
                     } else {
                         println!("NO");
@@ -66,7 +61,7 @@ pub fn solve(
                     cnf.add_clause(Clause::from(vec![
                         Lit::neg(af.get_var(arg))
                     ]));
-                    if let Some(_) = solver.solve(&cnf) {
+                    if let Some(_) = sat_solver.solve(&cnf) {
                         println!("NO");
                     } else {
                         println!("YES");

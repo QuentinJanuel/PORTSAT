@@ -10,15 +10,16 @@ use crate::{
     },
 };
 use sat_portfolio::{
-    portfolio,
+    // portfolio,
     cnf::{
         Clause,
         Lit,
     },
     solver::{
         Solver,
-        minisat::Minisat,
-        dpll::DPLL,
+        // minisat::Minisat,
+        manysat::Manysat,
+        // dpll::DPLL,
     },
 };
 
@@ -26,10 +27,7 @@ pub fn solve(
     af: AF,
     problem: Problem,
 ) -> Result<(), String> {
-    let solver = portfolio![
-        Minisat::new(),
-        DPLL::new(),
-    ];
+    let solver = Manysat::new();
     match &problem.semantics {
         Complete | Stable => {
             let cnf = if let Complete = &problem.semantics {

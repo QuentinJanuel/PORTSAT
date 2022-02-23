@@ -9,6 +9,7 @@ use sat_portfolio::solver::{
     Solver,
     minisat::Minisat,
     manysat::Manysat,
+    glucose::Glucose,
     dpll::DPLL,
     portfolio::Portfolio,
 };
@@ -37,6 +38,7 @@ fn get_all_solvers() -> HashMap<String, Box<dyn Solver + Send>> {
     hashmap.insert("minisat".into(), Box::new(Minisat::new()));
     hashmap.insert("manysat".into(), Box::new(Manysat::new()));
     hashmap.insert("dpll".into(), Box::new(DPLL::new()));
+    hashmap.insert("glucose".into(), Box::new(Glucose::new()));
     hashmap
 }
 

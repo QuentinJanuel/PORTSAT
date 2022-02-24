@@ -3,4 +3,6 @@ report/report.log
 report/report.aux
 report/report.synctex.gz
 report/report.toc
+experiments/graph
 .venv
+**/__pycache__

@@ -1,4 +1,5 @@
 mod af;
+#[macro_use]
 mod utils;
 mod problem;
 mod solver;
@@ -8,13 +9,19 @@ use utils::{
     args::Args,
     get_solvers_from_arg,
     show_available_solvers,
+    verbose::VERBOSE,
 };
 use std::convert::TryInto;
 use solver::solve;
 
 fn main() -> Result<(), String> {
     let args = Args::new();
-    if args.has("--problems") {
+    if args.has("-v") {
+        VERBOSE.enable();
+    }
+    if args.has("-h") {
+        utils::help();
+    } else if args.has("--problems") {
         problem::all_problems();
     } else if args.has("--formats") {
         println!("[tgf]");

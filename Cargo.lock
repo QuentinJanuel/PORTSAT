@@ -675,6 +675,7 @@ dependencies = [
 name = "ter"
 version = "0.1.0"
 dependencies = [
+ "lazy_static",
  "sat_portfolio",
 ]
 

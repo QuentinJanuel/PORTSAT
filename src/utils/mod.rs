@@ -1,4 +1,6 @@
 pub mod args;
+#[macro_use]
+pub mod verbose;
 
 use std::{
     fs::File,
@@ -31,6 +33,10 @@ pub fn details() {
         .collect::<Vec<_>>()
         .join(", ");
     println!("{} v{}\n{}", name, version, author);
+}
+
+pub fn help() {
+    println!("Help\nWIP");
 }
 
 fn get_all_solvers() -> HashMap<String, Box<dyn Solver + Send>> {

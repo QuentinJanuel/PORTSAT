@@ -17,8 +17,8 @@ def get_exe():
 def solve(
     input: str,
     problem: str,
-    arg: str = None,
-    solvers: List[str] = None,
+    arg: str | None = None,
+    solvers: List[str] | None = None,
 ):
     result = subprocess.run(
         [

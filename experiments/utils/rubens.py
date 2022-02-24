@@ -1,9 +1,7 @@
-import os
-from pathlib import Path
 import subprocess
 import matplotlib.pyplot as plt
 import numpy as np
-import solve
+from solve import solve
 from typing import List
 
 
@@ -31,30 +29,36 @@ def rubens_checker(problem: str, output_dir: str, rubens_jar_path: str):
     return result.stdout
 
 
-"""
-semantics : [GR,ST,CO,PR]
-"""
-def benchmark(input: str = "", solvers: List[str] = None, semantics: List[str] = None):
-    fig, ax = plt.subplots(1, 1)
+# semantics : [GR,ST,CO,PR]
+def benchmark(input: str, solvers: List[str], semantics: List[str]):
+    _, ax = plt.subplots(1, 1)
     problems = ["EE", "SE", "DS", "DC"]
     argument = str(1)
-    data = [[-1 for _ in range(len(semantics)*len(problems))]
+    data = [["" for _ in range(len(semantics)*len(problems))]
             for _ in range(len(solvers))]
     column_labels = []
-    for solver in range(len(solvers)):
-        for semantic in range(len(semantics)):
-            for problem in range(len(problems)):
-                arg = None
-                if(problems[problem][0] == "D"):
-                    arg = argument
-                column_labels.append(problems[problem]+"-"+semantics[semantic])
-                data[solver][semantic+problem] = solve(
-                    input, problems[problem]+"-"+semantics[semantic], solvers=[solvers[solver]], arg=argument)[1]
+    for i_sol, solver in enumerate(solvers):
+        for i_sem, semantic in enumerate(semantics):
+            for i_pro, problem in enumerate(problems):
+                # arg = None
+                # if(problem[0] == "D"):
+                #     arg = argument
+                column_labels.append(problem + "-" + semantic)
+                data[i_sol][i_sem + i_pro] = solve(
+                    input,
+                    problem + "-" + semantic,
+                    solvers=[solver],
+                    arg=argument,
+                )[1]
     rowLabels = solvers
-    ax.axis('tight')
+    ax.axis("tight")
     ax.axis("off")
-    ax.table(cellText=data, colLabels=column_labels,
-             rowLabels=rowLabels, loc="center")
+    ax.table(
+        cellText=data,
+        colLabels=column_labels,
+        rowLabels=rowLabels,
+        loc="center",
+    )
     plt.show()
 
 

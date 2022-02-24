@@ -1,0 +1,85 @@
+import os
+from pathlib import Path
+import subprocess
+import matplotlib.pyplot as plt
+import numpy as np
+import solve
+import json
+
+
+rubens_jar = "/home/christophe/programs/rubens/rubens-fr.cril.rubens.pom-1.1.2/fr.cril.rubens.checker/target/rubens-checker-1.1.2.jar"
+
+
+def rubens_checker(problem: str, output_dir: str, rubens_jar_path: str):
+    result = subprocess.run(
+        [
+            "java",
+            "-jar",
+            rubens_jar_path,
+            "-m",
+            problem,
+            "-o",
+            output_dir,
+            "-e",
+            solve.get_exe(),
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        raise Exception(result.stderr)
+    return result.stdout
+
+
+"""
+semantics : [GR,ST,CO,PR]
+"""
+def benchmark(input: str = "", solvers: "list[str]" = None, semantics: "list[str]" = None):
+    fig, ax = plt.subplots(1, 1)
+    problems = ["EE", "SE", "DS", "DC"]
+    argument = str(1)
+    data = [[-1 for _ in range(len(semantics)*len(problems))]
+            for _ in range(len(solvers))]
+    column_labels = []
+    for solver in range(len(solvers)):
+        for semantic in range(len(semantics)):
+            for problem in range(len(problems)):
+                arg = None
+                if(problems[problem][0] == "D"):
+                    arg = argument
+                column_labels.append(problems[problem]+"-"+semantics[semantic])
+                data[solver][semantic+problem] = solve(
+                    input, problems[problem]+"-"+semantics[semantic], solvers=[solvers[solver]], arg=argument)[1]
+    rowLabels = solvers
+    ax.axis('tight')
+    ax.axis("off")
+    ax.table(cellText=data, colLabels=column_labels,
+             rowLabels=rowLabels, loc="center")
+    plt.show()
+
+
+def checkEquality(problem: str, arrayToTest, solutions: str = ""):
+    with open(solutions, "r") as solution:
+        solutionArray = np.array(json.loads(
+            solution.read().strip().replace("a", "")), dtype=object)
+    arr = np.array(json.loads(
+        arrayToTest.strip().replace("a", "")), dtype=object)
+    if(problem == "SE"):
+        for i in range(len(arr)):
+            for j in range(len(solutionArray)):
+                if(set(arr[i]) == set(solutionArray[j])):
+                    return True
+        return False
+    elif(problem == "EE"):
+        testAll = [False for _ in range(len(solutionArray))]
+        for i in range(len(arr)):
+            for j in range(len(solutionArray)):
+                if(set(arr[i]) == set(solutionArray[j])):
+                    testAll[j] = True
+        for test in testAll:
+            if(not(test)):
+                return False
+        return True
+    else:
+        print("Probleme non traité")
+        return False

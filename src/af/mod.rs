@@ -2,7 +2,10 @@ mod argument;
 mod attack;
 mod extension;
 
-use std::fmt;
+use std::{
+    fmt,
+    collections::HashMap,
+};
 pub use argument::Argument;
 pub use attack::Attack;
 pub use extension::Extension;
@@ -16,91 +19,55 @@ use sat_portfolio::cnf::{
 // Argumentation Framework
 pub struct AF {
     pub arguments: Vec<Argument>,
-    pub attacks: Vec<Attack>,
 }
 
 impl AF {
-    fn from(args: Vec<&str>, attacks: Vec<(&str, &str)>) -> Self {
-        Self {
-            arguments: args
-                .iter()
-                .map(|&arg| Argument(arg.to_string()))
-                .collect(),
-            attacks: attacks
-                .iter()
-                .map(|&(a, b)| Attack(
-                    Argument(a.to_string()),
-                    Argument(b.to_string()),
-                ))
-                .collect(),
-        }
-    }
-    pub fn from_tgf(tgf: &str) -> Self {
-        let arg_att = tgf.split("#").collect::<Vec<_>>();
-        let args = arg_att[0]
-            .lines()
-            .filter(|&s| !s.is_empty())
-            .map(|s| s.split(" ").next().unwrap())
-            .collect::<Vec<_>>();
-        let attacks = arg_att[1]
-            .lines()
-            .filter(|&s| !s.is_empty())
-            .map(|s| {
-                let mut iter = s.split(" ");
-                (
-                    iter.next().unwrap(),
-                    iter.next().unwrap(),
-                )
-            })
-            .collect::<Vec<_>>();
-        Self::from(args, attacks)
-    }
-    fn has_attack(&self, from: &Argument, to: &Argument) -> bool {
-        self.attacks.iter()
-            .any(|a| a.0 == *from && a.1 == *to)
-    }
-    pub fn get_var(&self, arg: &Argument) -> Var {
+    pub fn get_var(&self, arg_name: &str) -> Var {
         let index = self.arguments
             .iter()
-            .position(|a| a == arg)
+            .position(|a| a.name == arg_name)
             .unwrap_or_else(|| panic!("Unexisting argument"));
         Var(index as u32)
     }
-    fn get_p_var(&self, arg: &Argument) -> Var {
-        let mut var = self.get_var(arg);
-        var.0 += self.arguments.len() as u32;
-        var
-    }
-    pub fn get_arg(&self, var: &Var) -> Option<&Argument> {
-        let index = var.0 as usize;
-        self.arguments.get(index)
-    }
-    pub fn phi_st(&self) -> CNF {
-        let mut cnf = CNF::new();
-        for a in self.arguments.iter() {
-            let mut clause1 = Clause::new();
-            let var_a = self.get_var(a);
-            clause1.add(Lit::pos(var_a));
-            for b in self.arguments.iter()  {
-                if !self.has_attack(b, a) {
-                    continue;
-                }
-                let var_b = self.get_var(b);
-                clause1.add(Lit::pos(var_b));
-                let mut clause2 = Clause::new();
-                clause2.add(Lit::neg(var_a));
-                clause2.add(Lit::neg(var_b));
-                cnf.add_clause(clause2);
+    pub fn from_tgf(tgf: &str) -> Self {
+        let arg_att = tgf.split("#").collect::<Vec<_>>();
+        let mut hm: HashMap<&str, usize> = HashMap::new();
+        let mut arguments = vec![];
+        for s in arg_att[0].lines() {
+            if s.is_empty() {
+                continue
             }
-            cnf.add_clause(clause1);
+            let name = s.split(" ")
+                .next()
+                .unwrap();
+            let arg = Argument {
+                name: name.into(),
+                attackers: vec![],
+            };
+            hm.insert(name, arguments.len());
+            arguments.push(arg);
         }
-        cnf
+        for s in arg_att[1].lines() {
+            if s.is_empty() {
+                continue;
+            }
+            let mut iter = s.split(" ");
+            let (a, b) = (
+                iter.next().unwrap(),
+                iter.next().unwrap(),
+            );
+            let a_ind = *hm.get(a).unwrap();
+            let b_ind = *hm.get(b).unwrap();
+            arguments[b_ind].attackers.push(a_ind);
+        }
+        Self { arguments }
     }
     pub fn phi_co(&self) -> CNF {
         let mut cnf = CNF::new();
-        for a in self.arguments.iter() {
-            let var_a = self.get_var(a);
-            let var_p_a = self.get_p_var(a);
+        let len = self.arguments.len();
+        for (a_ind, a) in self.arguments.iter().enumerate() {
+            let var_a = Var(a_ind as u32);
+            let var_p_a = Var((a_ind + len) as u32);
             // Clause 1
             let mut clause1 = Clause::new();
             clause1.add(Lit::neg(var_a));
@@ -115,12 +82,9 @@ impl AF {
             let mut clause4 = Clause::new();
             clause4.add(Lit::neg(var_p_a));
             // 
-            for b in self.arguments.iter() {
-                if !self.has_attack(b, a) {
-                    continue;
-                }
-                let var_b = self.get_var(b);
-                let var_p_b = self.get_p_var(b);
+            for b_ind in &a.attackers {
+                let var_b = Var(*b_ind as u32);
+                let var_p_b = Var((*b_ind + len) as u32);
                 // Clause 2
                 clause2.add(Lit::neg(var_p_b));
                 // 
@@ -149,6 +113,23 @@ impl AF {
         }
         cnf
     }
+    pub fn phi_st(&self) -> CNF {
+        let mut cnf = CNF::new();
+        for (a_ind, a) in self.arguments.iter().enumerate() {
+            let var_a = Var(a_ind as u32);
+            let mut clause1 = Clause::from(vec![Lit::pos(var_a)]);
+            for b_ind in &a.attackers {
+                let var_b = Var(*b_ind as u32);
+                clause1.add(Lit::pos(var_b));
+                cnf.add_clause(Clause::from(vec![
+                    Lit::neg(var_a),
+                    Lit::neg(var_b),
+                ]));
+            }
+            cnf.add_clause(clause1);
+        }
+        cnf
+    }
 }
 
 impl fmt::Display for AF {
@@ -161,9 +142,16 @@ impl fmt::Display for AF {
                 .map(Argument::to_string)
                 .collect::<Vec<_>>()
                 .join("\n"),
-            self.attacks
+            self.arguments
                 .iter()
-                .map(Attack::to_string)
+                .flat_map(|b| {
+                    let mut v = vec![];
+                    for a_ind in &b.attackers {
+                        let a = &self.arguments[*a_ind];
+                        v.push(format!("{} -> {}", a, b));
+                    }
+                    v
+                })
                 .collect::<Vec<_>>()
                 .join("\n"),
         )

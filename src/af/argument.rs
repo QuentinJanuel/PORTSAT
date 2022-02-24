@@ -1,10 +1,12 @@
 use std::fmt;
 
-#[derive(PartialEq, Clone)]
-pub struct Argument(pub String);
+pub struct Argument {
+    pub name: String,
+    pub attackers: Vec<usize>,
+}
 
 impl fmt::Display for Argument {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0)
+        write!(f, "{}", self.name)
     }
 }

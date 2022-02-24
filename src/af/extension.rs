@@ -19,8 +19,12 @@ impl fmt::Display for Extension<'_> {
                 .model
                 .get_pos_vars()
                 .iter()
-                .filter_map(|var| self.af.get_arg(&var))
-                .map(|l| format!("{}", l))
+                .filter_map(|var|
+                    self.af
+                        .arguments
+                        .get(var.0 as usize)
+                        .map(|arg| arg.name.as_str())
+                )
                 .collect::<Vec<_>>()
                 .join(",")
             )

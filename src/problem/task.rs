@@ -2,12 +2,11 @@ use std::{
     fmt,
     convert::TryFrom,
 };
-use crate::af::Argument;
 
 #[derive(Clone)]
 pub enum Task {
-    Credulous(Argument),
-    Skeptical(Argument),
+    Credulous(String),
+    Skeptical(String),
     Enumerate,
     FindOne,
 }
@@ -26,10 +25,9 @@ impl fmt::Display for Task {
 impl TryFrom<(&str, Option<&str>)> for Task {
     type Error = &'static str;
     fn try_from((task, arg): (&str, Option<&str>)) -> Result<Self, Self::Error> {
-        let arg = arg.map(|arg| Argument(arg.to_string()));
         match (task, arg) {
-            ("DC", Some(arg)) => Ok(Self::Credulous(arg)),
-            ("DS", Some(arg)) => Ok(Self::Skeptical(arg)),
+            ("DC", Some(arg)) => Ok(Self::Credulous(arg.into())),
+            ("DS", Some(arg)) => Ok(Self::Skeptical(arg.into())),
             ("DC", None) => Err("The argument is not specified"),
             ("DS", None) => Err("The argument is not specified"),
             ("EE", _) => Ok(Self::Enumerate),

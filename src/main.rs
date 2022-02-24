@@ -33,7 +33,7 @@ fn main() -> Result<(), String> {
         let file = args.get("-f")
             .ok_or("The file is not specified")?;
         let tgf = utils::read_file(file)?;
-        let af = AF::from_tgf(&tgf);
+        let af = benchmark!("TGF parsing", AF::from_tgf(&tgf));
         solve(
             af,
             problem,

@@ -1,7 +1,6 @@
 mod semantics;
 mod task;
 
-use crate::af::Argument;
 use std::{
     fmt,
     convert::TryFrom,
@@ -42,8 +41,8 @@ impl TryFrom<(&str, Option<&str>)> for Problem {
 
 pub fn all_problems() {
     let all_tasks = vec![
-        Task::Credulous(Argument(String::new())),
-        Task::Skeptical(Argument(String::new())),
+        Task::Credulous(String::new()),
+        Task::Skeptical(String::new()),
         Task::Enumerate,
         Task::FindOne,
     ];

@@ -9,7 +9,6 @@ use crate::{
         Task::*,
     },
 };
-use std::time::Instant;
 use sat_portfolio::{
     cnf::{
         Clause,
@@ -25,24 +24,23 @@ pub fn solve(
 ) -> Result<(), String> {
     match &problem.semantics {
         Complete | Stable => {
-            log!("Generating SAT instance...");
-            let now = Instant::now();
-            let cnf = if let Complete = &problem.semantics {
-                af.phi_co()
-            } else {
-                af.phi_st()
-            };
-            log!("Generated in {}ms", now.elapsed().as_millis());
+            let cnf = benchmark!("CNF generation", {
+                if let Complete = &problem.semantics {
+                    af.phi_co()
+                } else {
+                    af.phi_st()
+                }
+            });
             match &problem.task {
                 FindOne => {
-                    log!("Solving SAT instance...");
-                    let now = Instant::now();
-                    if let Some(model) = sat_solver.solve(&cnf) {
+                    let model = benchmark!("SAT solving", {
+                        sat_solver.solve(&cnf)
+                    });
+                    if let Some(model) = model {
                         println!("{}", Extension::new(&af, &model));
                     } else {
                         println!("NO");
                     }
-                    log!("Done in {}ms", now.elapsed().as_millis());
                 },
                 Enumerate => {
                     let models = sat_solver.get_all_models(&cnf);

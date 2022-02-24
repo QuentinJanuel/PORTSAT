@@ -1,6 +1,7 @@
 import os
 import subprocess
 from pathlib import Path
+from typing import List
 
 
 def get_exe():
@@ -17,7 +18,7 @@ def solve(
     input: str,
     problem: str,
     arg: str = None,
-    solvers: list[str] = None,
+    solvers: List[str] = None,
 ):
     result = subprocess.run(
         [

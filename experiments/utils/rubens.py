@@ -4,7 +4,7 @@ import subprocess
 import matplotlib.pyplot as plt
 import numpy as np
 import solve
-import json
+from typing import List
 
 
 rubens_jar = "/home/christophe/programs/rubens/rubens-fr.cril.rubens.pom-1.1.2/fr.cril.rubens.checker/target/rubens-checker-1.1.2.jar"
@@ -34,7 +34,7 @@ def rubens_checker(problem: str, output_dir: str, rubens_jar_path: str):
 """
 semantics : [GR,ST,CO,PR]
 """
-def benchmark(input: str = "", solvers: "list[str]" = None, semantics: "list[str]" = None):
+def benchmark(input: str = "", solvers: List[str] = None, semantics: List[str] = None):
     fig, ax = plt.subplots(1, 1)
     problems = ["EE", "SE", "DS", "DC"]
     argument = str(1)

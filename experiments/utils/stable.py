@@ -1,8 +1,9 @@
 from reprandom import rr
 from graph import Graph
+from typing import List
 
 
-def _random_set(v: list[int], size: int):
+def _random_set(v: List[int], size: int):
     v_cop = v.copy()
     set = []
     while(len(set) < size):

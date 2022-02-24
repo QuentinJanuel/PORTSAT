@@ -1,11 +1,12 @@
 import os
+from typing import Tuple, List
 
 
 class Graph:
     def __init__(
         self,
-        vertices: list[int],
-        edges: list[tuple[int, int]] = [],
+        vertices: List[int],
+        edges: List[Tuple[int, int]] = [],
     ):
         self.vertices = vertices
         self.edges = edges

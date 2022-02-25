@@ -12,3 +12,7 @@ license = "MIT"
 [dependencies]
 sat_portfolio = { git = "https://github.com/QuentinJanuel/sat-portfolio" }
 lazy_static = "1.4.0"
+lalrpop-util = "0.19.7"
+
+[build-dependencies]
+lalrpop = "0.19.7"

@@ -1,6 +1,7 @@
 mod argument;
 mod attack;
 mod extension;
+pub mod format;
 
 use std::{
     fmt,
@@ -16,6 +17,8 @@ use sat_portfolio::cnf::{
     Var,
 };
 
+lalrpop_mod!(pub apx_parser, "/af/apx.rs");
+
 // Argumentation Framework
 pub struct AF {
     pub arguments: Vec<Argument>,
@@ -28,6 +31,29 @@ impl AF {
             .position(|a| a.name == arg_name)
             .unwrap_or_else(|| panic!("Unexisting argument"));
         Var(index as u32)
+    }
+    pub fn from_apx(apx: &str) -> Self {
+        let parser = apx_parser::APXParser::new();
+        let (
+            s_args,
+            s_atts,
+        ) = parser.parse(apx).unwrap();
+        let mut hm: HashMap<&str, usize> = HashMap::new();
+        let mut arguments = vec![];
+        for name in &s_args {
+            let arg = Argument {
+                name: name.into(),
+                attackers: vec![],
+            };
+            hm.insert(name, arguments.len());
+            arguments.push(arg);
+        }
+        for (a, b) in &s_atts {
+            let a_ind = *hm.get(a.as_str()).unwrap();
+            let b_ind = *hm.get(b.as_str()).unwrap();
+            arguments[b_ind].attackers.push(a_ind);
+        }
+        Self { arguments }
     }
     pub fn from_tgf(tgf: &str) -> Self {
         let arg_att = tgf.split("#").collect::<Vec<_>>();

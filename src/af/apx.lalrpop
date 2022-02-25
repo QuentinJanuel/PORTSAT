@@ -1,0 +1,41 @@
+grammar;
+
+pub APX: (Vec<String>, Vec<(String, String)>) = {
+    <mut apx:APX> <a:Argument> => {
+        apx.0.push(a);
+        apx
+    },
+    <mut apx:APX> <a:Attack> => {
+        apx.1.push(a);
+        apx
+    },
+    Argument => {
+        (vec![<>], vec![])
+    },
+    Attack => {
+        (vec![], vec![<>])
+    },
+}
+
+Argument: String = {
+    ARGUMENT LPAR <IDENT> RPAR DOT => String::from(<>),
+}
+
+Attack: (String, String) = {
+    ATTACK LPAR <a:IDENT> COMMA <b:IDENT> RPAR DOT => (
+        String::from(a),
+        String::from(b),
+    ),
+}
+
+// Lexer
+match {
+    "," => COMMA,
+    "." => DOT,
+    "arg" => ARGUMENT,
+    "att" => ATTACK,
+    "(" => LPAR,
+    ")" => RPAR,
+    r"([[:alpha:]]|_|[0-9])+" => IDENT,
+    r"\s*" => {}, // Ignore white spaces
+}

@@ -34,7 +34,7 @@ macro_rules! log {
 
 #[macro_export]
 macro_rules! benchmark {
-    ($name:expr, $code:expr) => ({
+    ($name:expr, $code:expr $(,)?) => ({
         log!("{}...", $name);
         let now = std::time::Instant::now();
         let result = $code;

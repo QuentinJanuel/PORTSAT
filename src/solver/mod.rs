@@ -1,3 +1,5 @@
+mod benchmark;
+
 use crate::{
     af::{
         AF,
@@ -16,6 +18,7 @@ use sat_portfolio::{
     },
     solver::Solver,
 };
+use benchmark::BenchmarkTask;
 
 pub fn solve(
     af: AF,
@@ -24,18 +27,20 @@ pub fn solve(
 ) -> Result<(), String> {
     match &problem.semantics {
         Complete | Stable => {
-            let cnf = benchmark!("CNF generation", {
+            let cnf = benchmark!(
+                BenchmarkTask::CNFGeneration,
                 if let Complete = &problem.semantics {
                     af.phi_co()
                 } else {
                     af.phi_st()
-                }
-            });
+                },
+            );
             match &problem.task {
                 FindOne => {
-                    let model = benchmark!("SAT solving", {
-                        sat_solver.solve(&cnf)
-                    });
+                    let model = benchmark!(
+                        BenchmarkTask::SATSolving,
+                        sat_solver.solve(&cnf),
+                    );
                     if let Some(model) = model {
                         println!("{}", Extension::new(&af, &model));
                     } else {
@@ -44,7 +49,11 @@ pub fn solve(
                 },
                 Enumerate => {
                     let mut cnf = cnf;
-                    let models = sat_solver.get_all_models(&mut cnf);
+                    let models = benchmark!(
+                        BenchmarkTask::SATSolving,
+                        sat_solver
+                            .get_all_models(&mut cnf),
+                    );
                     println!("[{}]", models
                         .iter()
                         .map(|m| format!("{}", Extension::new(&af, m)))

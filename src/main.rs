@@ -7,8 +7,7 @@ mod solver;
 use af::AF;
 use utils::{
     args::Args,
-    get_solvers_from_arg,
-    show_available_solvers,
+    solvers,
     verbose::VERBOSE,
 };
 use std::convert::TryInto;
@@ -26,7 +25,7 @@ fn main() -> Result<(), String> {
     } else if args.has("--formats") {
         println!("[tgf]");
     } else if args.has("--solvers") {
-        show_available_solvers();
+        solvers::show_available();
     } else if let Some(problem) = args.get("-p") {
         let param = args.get("-a");
         let problem = (problem, param).try_into()?;
@@ -37,7 +36,7 @@ fn main() -> Result<(), String> {
         solve(
             af,
             problem,
-            get_solvers_from_arg(args.get("-s")),
+            solvers::get_from_arg(args.get("-s")),
         )?;
     } else {
         utils::details();

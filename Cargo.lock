@@ -61,12 +61,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5827cebf4670468b8772dd191856768aedcb1b0278a04f989f7766351917b9dc"
 
 [[package]]
-name = "dyn-clone"
-version = "1.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee2626afccd7561a06cf1367e2950c4718ea04565e20fb5029b6c7d8ad09abcf"
-
-[[package]]
 name = "encoding_rs"
 version = "0.8.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -561,10 +555,9 @@ checksum = "73b4b750c782965c211b42f022f59af1fbceabdd026623714f104152f1ec149f"
 [[package]]
 name = "sat_portfolio"
 version = "0.1.0"
-source = "git+https://github.com/QuentinJanuel/sat-portfolio#f6795ffc161f5d0d1bc7d877ff8f683ecfcf7f8f"
+source = "git+https://github.com/QuentinJanuel/sat-portfolio#1f62cacf6b6c6266417c60156339637e1d31a35c"
 dependencies = [
  "cc",
- "dyn-clone",
  "reqwest",
 ]
 

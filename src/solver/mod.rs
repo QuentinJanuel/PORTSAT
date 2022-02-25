@@ -43,7 +43,8 @@ pub fn solve(
                     }
                 },
                 Enumerate => {
-                    let models = sat_solver.get_all_models(&cnf);
+                    let mut cnf = cnf;
+                    let models = sat_solver.get_all_models(&mut cnf);
                     println!("[{}]", models
                         .iter()
                         .map(|m| format!("{}", Extension::new(&af, m)))

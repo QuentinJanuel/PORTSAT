@@ -43,7 +43,7 @@ fn get_all_solvers() -> HashMap<String, Box<dyn Solver + Send>> {
     let mut hashmap: HashMap<_, Box<dyn Solver + Send>> = HashMap::new();
     hashmap.insert("minisat".into(), Box::new(Minisat::new()));
     hashmap.insert("manysat".into(), Box::new(Manysat::new()));
-    hashmap.insert("dpll".into(), Box::new(DPLL::new()));
+    hashmap.insert(   "dpll".into(), Box::new(   DPLL::new()));
     hashmap.insert("glucose".into(), Box::new(Glucose::new()));
     hashmap
 }

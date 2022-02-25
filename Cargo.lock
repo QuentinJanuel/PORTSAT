@@ -561,7 +561,7 @@ checksum = "73b4b750c782965c211b42f022f59af1fbceabdd026623714f104152f1ec149f"
 [[package]]
 name = "sat_portfolio"
 version = "0.1.0"
-source = "git+https://github.com/QuentinJanuel/sat-portfolio#45d377a0d23d9c79a039b832d349fb81813469bb"
+source = "git+https://github.com/QuentinJanuel/sat-portfolio#f6795ffc161f5d0d1bc7d877ff8f683ecfcf7f8f"
 dependencies = [
  "cc",
  "dyn-clone",

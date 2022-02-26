@@ -1,5 +1,6 @@
+from io import TextIOWrapper
 import os
-from typing import Tuple, List
+from typing import Callable, Tuple, List
 
 
 class Graph:
@@ -12,11 +13,32 @@ class Graph:
         self.edges = edges
 
     def save(self, file_name: str):
+        self.save_apx(file_name)
+        self.save_tgf(file_name)
+
+    def save_tgf(self, file_name: str):
+        def writer(f: TextIOWrapper):
+            for v in self.vertices:
+                f.write(f"{v}\n")
+            f.write("#\n")
+            for v1, v2 in self.edges:
+                f.write(f"{v1} {v2}\n")
+        self._write(f"{file_name}.tgf", writer)
+
+    def save_apx(self, file_name: str):
+        def writer(f: TextIOWrapper):
+            for v in self.vertices:
+                f.write(f"arg({v}).\n")
+            for v1, v2 in self.edges:
+                f.write(f"att({v1},{v2}).\n")
+        self._write(f"{file_name}.apx", writer)
+
+    def _write(
+        self,
+        file_name: str,
+        writer: Callable[[TextIOWrapper], None],
+    ):
         if not os.path.exists("graph"):
             os.makedirs("graph")
         with open(f"graph/{file_name}", "w") as file:
-            for v in self.vertices:
-                file.write(f"{v}\n")
-            file.write("#\n")
-            for v1, v2 in self.edges:
-                file.write(f"{v1} {v2}\n")
+            writer(file)

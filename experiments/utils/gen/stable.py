@@ -1,5 +1,5 @@
-from reprandom import rr
-from graph import Graph
+from utils.reprandom import rr
+from utils.graph import Graph
 from typing import List
 
 

@@ -28,10 +28,12 @@ cargo run -- -p <problem> -s <solvers> -f <file> -fo <fileformat> [-a <additiona
 ```
 Example:
 ```
-cargo run -- -p DC-CO -s manysat,dpll -f examples/tgf.txt -fo tgf -a a
+cargo run -- -p DC-CO -s manysat,dpll -f graph.tgf -fo tgf -a a
 ```
 
 ## Compile
+The Python scripts will attempt to use the release version of the solver.
+In order to compile it, run the following command:
 ```
 cargo build --release
 ```

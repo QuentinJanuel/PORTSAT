@@ -15,7 +15,7 @@ def get_exe():
 
 
 def solve(
-    input: str,
+    input: Path,
     problem: str,
     arg: str | None = None,
     solvers: List[str] | None = None,
@@ -27,7 +27,7 @@ def solve(
             "-p",
             problem,
             "-f",
-            f"graph/{input}",
+            input,
             "-fo",
             format,
             *([] if arg is None else ["-a", arg]),

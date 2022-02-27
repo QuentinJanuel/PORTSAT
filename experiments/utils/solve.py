@@ -20,22 +20,27 @@ def solve(
     arg: str | None = None,
     solvers: List[str] | None = None,
     format: Literal["tgf", "apx"] = "tgf",
-):
-    result = subprocess.run(
-        [
-            get_exe(),
-            "-p",
-            problem,
-            "-f",
-            input,
-            "-fo",
-            format,
-            *([] if arg is None else ["-a", arg]),
-            *([] if solvers is None else ["-s", ",".join(solvers)]),
-        ],
-        capture_output=True,
-        text=True,
-    )
-    if result.returncode != 0:
-        raise Exception(result.stderr)
-    return result.stdout
+    timeout: float | None = None,
+) -> str | None:
+    try:
+        result = subprocess.run(
+            [
+                get_exe(),
+                "-p",
+                problem,
+                "-f",
+                input,
+                "-fo",
+                format,
+                *([] if arg is None else ["-a", arg]),
+                *([] if solvers is None else ["-s", ",".join(solvers)]),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+        if result.returncode != 0:
+            raise Exception(result.stderr)
+        return result.stdout
+    except subprocess.TimeoutExpired:
+        return None

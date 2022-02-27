@@ -1,11 +1,11 @@
 from pathlib import Path
-from typing import List
+from typing import List, Literal
 from utils.test.setup import setup
 from utils.test.tester import Tester
 
 
 def get_testers(
-    types: List[str]
+    types: List[Literal["gr", "st", "scc"]]
 ):
     setup()
     iccma15 = Path(__file__)\
@@ -16,15 +16,15 @@ def get_testers(
     for dir in iccma15.iterdir():
         if "small" not in dir.name:
             continue
-        valid_type = False
+        cur_type: Literal["gr", "st", "scc"] | None = None
         for type in types:
             if f"_{type}_" in dir.name:
-                valid_type = True
+                cur_type = type
                 break
-        if not valid_type:
+        if cur_type is None:
             continue
         for file in dir.iterdir():
             if file.suffix != ".tgf":
                 continue
-            testers.append(Tester(file))
+            testers.append(Tester(file, cur_type))
     return testers

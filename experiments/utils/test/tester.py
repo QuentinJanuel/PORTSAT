@@ -6,6 +6,7 @@ import pandas as pd
 import time
 import numpy as np
 import matplotlib.pyplot as plt
+
 class Tester:
     def __init__(self, input: Path, type: Literal["gr", "st", "scc"]):
         self._input = input
@@ -71,9 +72,9 @@ class Tester:
                             self._get_solution_file(sem)
                         ))
                         print(f"Guess: {guess}")
-                        return False, timeout_count
+                        df=pd.concat([df,pd.DataFrame([row],columns=row.keys())],ignore_index=True)
+                        return False, timeout_count,df
                     
-                print(row)
                 df=pd.concat([df,pd.DataFrame([row],columns=row.keys())],ignore_index=True)
 
         return (True, timeout_count,df)
@@ -144,7 +145,8 @@ class Tester:
         a = self._exts_inclusion(exts1, exts2)
         b = self._exts_inclusion(exts2, exts1)
         return a and b
-
+    def __str__(self):
+        return str(self._input.name)
 def test(
     testers: List["Tester"],
     solvers: List[str],
@@ -153,6 +155,7 @@ def test(
     timeout: float | None = None,
 ) -> bool:
     timeout_count = 0
+    finalCsv=pd.DataFrame()
     for i, tester in enumerate(testers):
         success, timeout_count,df= tester.test(
             solvers,
@@ -162,30 +165,37 @@ def test(
             timeout_count=timeout_count,
             timeout=timeout,
         )
+        df["testFileName"]=str(tester)
         if not success:
             print()
             print("FAILED")
             return False
-    print()
-    print("OK")
-    print()
-    df.to_csv("TEST1234.csv",index=False)
+        finalCsv=pd.concat([finalCsv,df])
+    finalCsv.fillna(-2,inplace=True)
+    finalCsv.to_csv("TEST1234.csv",index=False)
     return True
 
 def displayGraph(csv):
     df=pd.read_csv(csv)
-    print(df)
     color=["blue","red","orange","green"]
     width=0.35
-    x=list(df["TaskSem"])
-    ind=np.arange(len(x))
-    solvers=list(df.columns)[1:]
 
+    solvers=list(df.columns)[1:-1]
+    dfTransformed=df.groupby(["TaskSem"]).mean()
+    x=list(set(df["TaskSem"]))
+    ind=np.arange(len(x))
+    pas=width/len(solvers)
     for i,solver in enumerate(solvers):
-        bench=list(df[solver])
-        if(i>=len(solvers)/2):
-            plt.bar(ind-(width/len(solvers))*(i),bench,width=width,label=solver,color=color[i])
+        bench=list(dfTransformed[solver])
+        j=2
+        if(i>len(solvers)/2):
+            
+            plt.bar(ind-(pas)*(j-1),bench,width=pas,label=solver,color=color[i])
+            j+=1
+        elif(len(solvers)==2 and i==2):
+            plt.bar(ind-(pas)*(1),bench,width=pas,label=solver,color=color[i])
         else:
-            plt.bar(ind+(width/len(solvers))*(i+1),bench,width=width,label=solver,color=color[i])
-    plt.xticks(ind,x) 
+            plt.bar(ind+(pas)*(i),bench,width=pas,label=solver,color=color[i])
+    plt.xticks(ind,x)
+    plt.legend(loc="upper right")
     plt.show()

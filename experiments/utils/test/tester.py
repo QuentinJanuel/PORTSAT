@@ -2,34 +2,10 @@ from pathlib import Path
 from typing import List, Literal, Tuple
 from utils.test.ext_parser import parse_extension, parse_extensions
 from utils.solve import solve
-
-
-def test(
-    testers: List["Tester"],
-    solvers: List[str],
-    semantics: List[str],
-    tasks: List[str],
-    timeout: float | None = None,
-) -> bool:
-    timeout_count = 0
-    for i, tester in enumerate(testers):
-        success, timeout_count = tester.test(
-            solvers,
-            semantics,
-            tasks,
-            progress=(i + 1, len(testers)),
-            timeout_count=timeout_count,
-            timeout=timeout,
-        )
-        if not success:
-            print()
-            print("FAILED")
-            return False
-    print()
-    print("OK")
-    return True
-
-
+import pandas as pd
+import time
+import numpy as np
+import matplotlib.pyplot as plt
 class Tester:
     def __init__(self, input: Path, type: Literal["gr", "st", "scc"]):
         self._input = input
@@ -54,9 +30,11 @@ class Tester:
         progress: Tuple[int, int],
         timeout_count: int,
         timeout: float | None = None,
-    ) -> Tuple[bool, int]:
+    ) -> Tuple[bool, int,pd.DataFrame]:
+        df=pd.DataFrame(columns=["TaskSem"]+solvers)
         for task in tasks:
             for sem in semantics:
+                row={"TaskSem":f"{task}-{sem}"}
                 for solver in solvers:
                     print(
                         " ".join([
@@ -70,6 +48,7 @@ class Tester:
                         ]),
                         end="",
                     )
+                    startTimer=time.time()
                     guess = solve(
                         input=self.get_input(),
                         problem=f"{task}-{sem}",
@@ -78,6 +57,8 @@ class Tester:
                         arg=None,
                         timeout=timeout,
                     )
+                    endTimer=time.time()
+                    row.update({solver:endTimer-startTimer})
                     if guess is None:
                         timeout_count += 1
                         continue
@@ -91,7 +72,11 @@ class Tester:
                         ))
                         print(f"Guess: {guess}")
                         return False, timeout_count
-        return True, timeout_count
+                    
+                print(row)
+                df=pd.concat([df,pd.DataFrame([row],columns=row.keys())],ignore_index=True)
+
+        return (True, timeout_count,df)
 
     def check(self, guess: str, task: str, sem: str):
         r_exts = parse_extensions(self.get_solution(sem))
@@ -159,3 +144,48 @@ class Tester:
         a = self._exts_inclusion(exts1, exts2)
         b = self._exts_inclusion(exts2, exts1)
         return a and b
+
+def test(
+    testers: List["Tester"],
+    solvers: List[str],
+    semantics: List[str],
+    tasks: List[str],
+    timeout: float | None = None,
+) -> bool:
+    timeout_count = 0
+    for i, tester in enumerate(testers):
+        success, timeout_count,df= tester.test(
+            solvers,
+            semantics,
+            tasks,
+            progress=(i + 1, len(testers)),
+            timeout_count=timeout_count,
+            timeout=timeout,
+        )
+        if not success:
+            print()
+            print("FAILED")
+            return False
+    print()
+    print("OK")
+    print()
+    df.to_csv("TEST1234.csv",index=False)
+    return True
+
+def displayGraph(csv):
+    df=pd.read_csv(csv)
+    print(df)
+    color=["blue","red","orange","green"]
+    width=0.35
+    x=list(df["TaskSem"])
+    ind=np.arange(len(x))
+    solvers=list(df.columns)[1:]
+
+    for i,solver in enumerate(solvers):
+        bench=list(df[solver])
+        if(i>=len(solvers)/2):
+            plt.bar(ind-(width/len(solvers))*(i),bench,width=width,label=solver,color=color[i])
+        else:
+            plt.bar(ind+(width/len(solvers))*(i+1),bench,width=width,label=solver,color=color[i])
+    plt.xticks(ind,x) 
+    plt.show()

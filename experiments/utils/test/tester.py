@@ -42,7 +42,7 @@ class Tester:
                             f"Tester {progress[0]}/{progress[1]}",
                             self._type,
                             f"{task}-{sem}",
-                            solver,
+                            solver if solver is not None else "default",
                             f"Timeouts: {timeout_count}",
                             " " * 20,
                         ]),
@@ -52,7 +52,7 @@ class Tester:
                     guess = solve(
                         input=self.get_input(),
                         problem=f"{task}-{sem}",
-                        solvers=[solver],
+                        solvers=[solver] if solver is not None else None,
                         format="tgf",
                         arg=None,
                         timeout=timeout,

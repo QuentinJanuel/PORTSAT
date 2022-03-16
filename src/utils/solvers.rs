@@ -36,8 +36,8 @@ pub fn show_available() {
     println!("[{}]", s);
 }
 
-pub fn get_from_arg(arg: Option<&str>) -> Box<dyn Solver> {
-    if let Some(solver_names) = arg {
+pub fn get_from_arg(arg: Option<&str>) -> Option<Box<dyn Solver>> {
+    arg.map(|solver_names| {
         let mut solvers: Vec<Arc<dyn Solver>> = vec![];
         let all_solvers = get_all();
         for solver_name in solver_names.split(',') {
@@ -50,9 +50,6 @@ pub fn get_from_arg(arg: Option<&str>) -> Box<dyn Solver> {
         if solvers.len() < 1 {
             panic!("No solver specified");
         }
-        Box::new(Portfolio::from(solvers))
-    } else {
-        // Default solver: manysat
-        Box::new(Manysat::new())
-    }
+        Box::new(Portfolio::from(solvers)) as Box<dyn Solver>
+    })
 }

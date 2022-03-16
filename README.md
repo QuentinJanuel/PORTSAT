@@ -24,12 +24,13 @@ cargo run -- --solvers
 
 ## Solve a given problem
 ```
-cargo run -- -p <problem> -s <solvers> -f <file> -fo <fileformat> [-a <additional_parameter>]
+cargo run -- -p <problem> -f <file> -fo <fileformat> [-a <additional_parameter>] [-s <solvers>]
 ```
 Example:
 ```
 cargo run -- -p DC-CO -s manysat,dpll -f graph.tgf -fo tgf -a a
 ```
+**NOTE**: You cannot set the solvers when the problem involves the grounded extension.
 
 ## Compile
 The Python scripts will attempt to use the release version of the solver.

@@ -12,8 +12,7 @@ impl<'a> Extension<'a> {
         Self { af, model }
     }
     fn get_args(&'a self) -> Vec<&'a str>{
-        self
-            .model
+        self.model
             .get_pos_vars()
             .iter()
             .filter_map(|var|
@@ -26,6 +25,9 @@ impl<'a> Extension<'a> {
     }
     pub fn contains(&self, arg: &str) -> bool {
         self.get_args().contains(&arg)
+    }
+    pub fn is_subset(&self, other: &Self) -> bool {
+        self.get_args().iter().all(|arg| other.contains(arg))
     }
 }
 

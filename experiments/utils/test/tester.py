@@ -55,16 +55,19 @@ class Tester:
         timeout_count: int,
         timeout: float | None = None,
     ) -> Tuple[bool, int]:
+        maybe_solvers: List[str | None] = [solver for solver in solvers]
+        if len(maybe_solvers) == 0:
+            maybe_solvers.append(None)
         for task in tasks:
             for sem in semantics:
-                for solver in solvers:
+                for solver in maybe_solvers:
                     print(
                         " ".join([
                             "\r",
                             f"Tester {progress[0]}/{progress[1]}",
                             self._type,
                             f"{task}-{sem}",
-                            solver,
+                            solver if solver is not None else "default",
                             f"Timeouts: {timeout_count}",
                             " " * 20,
                         ]),
@@ -73,7 +76,7 @@ class Tester:
                     guess = solve(
                         input=self.get_input(),
                         problem=f"{task}-{sem}",
-                        solvers=[solver],
+                        solvers=[solver] if solver is not None else None,
                         format="tgf",
                         arg=None,
                         timeout=timeout,

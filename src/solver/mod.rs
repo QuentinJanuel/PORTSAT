@@ -16,17 +16,19 @@ use sat_portfolio::{
         Clause,
         Lit,
     },
-    solver::Solver,
+    solver::{self as sat_solver, Solver},
 };
 use benchmark::BenchmarkTask;
 
 pub fn solve(
     af: AF,
     problem: Problem,
-    sat_solver: Box<dyn Solver>,
+    sat_solver: Option<Box<dyn Solver>>,
 ) -> Result<(), String> {
     match &problem.semantics {
         Complete | Stable => {
+            let sat_solver = sat_solver
+                .unwrap_or_else(|| Box::new(sat_portfolio::solver::manysat::Manysat::new()));
             let cnf = benchmark!(
                 BenchmarkTask::CNFGeneration,
                 if let Complete = &problem.semantics {
@@ -66,7 +68,11 @@ pub fn solve(
                     cnf.add_clause(Clause::from(vec![
                         Lit::pos(af.get_var(arg))
                     ]));
-                    if let Some(_) = sat_solver.solve(&cnf) {
+                    let model = benchmark!(
+                        BenchmarkTask::SATSolving,
+                        sat_solver.solve(&cnf),
+                    );
+                    if let Some(_) = model {
                         println!("YES");
                     } else {
                         println!("NO");
@@ -77,7 +83,11 @@ pub fn solve(
                     cnf.add_clause(Clause::from(vec![
                         Lit::neg(af.get_var(arg))
                     ]));
-                    if let Some(_) = sat_solver.solve(&cnf) {
+                    let model = benchmark!(
+                        BenchmarkTask::SATSolving,
+                        sat_solver.solve(&cnf),
+                    );
+                    if let Some(_) = model {
                         println!("NO");
                     } else {
                         println!("YES");
@@ -85,7 +95,34 @@ pub fn solve(
                 },
             }
         },
-        Grounded => unimplemented!("Grounded"),
+        Grounded => {
+            if sat_solver.is_some() {
+                return Err("You cannot choose the sat solver for the grounded extension.".into())
+            }
+            let cnf = benchmark!(
+                BenchmarkTask::CNFGeneration,
+                af.phi_co(),
+            );
+            let sat_solver = sat_solver::minisat::Minisat::new();
+            let model = benchmark!(
+                BenchmarkTask::SATSolving,
+                sat_solver
+                    .solve(&cnf)
+                    .expect("The grounded extension should always exist")
+            );
+            let extension = Extension::new(&af, &model);
+            match &problem.task {
+                FindOne => println!("{}", extension),
+                Enumerate => println!("[{}]", extension),
+                Credulous(arg) | Skeptical(arg) => {
+                    if extension.contains(arg) {
+                        println!("YES");
+                    } else {
+                        println!("NO");
+                    }
+                },
+            }
+        },
         Preferred => unimplemented!("Preferred"),
     }
     Ok(())

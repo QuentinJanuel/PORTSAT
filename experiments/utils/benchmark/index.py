@@ -1,6 +1,6 @@
 from typing import List
 from utils.iccma.index import get_graphs, GraphType
-from utils.test.tester import Tester
+from utils.benchmark.tester import Tester
 
 
 def get_testers(

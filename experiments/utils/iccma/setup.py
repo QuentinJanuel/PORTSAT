@@ -1,13 +1,13 @@
 import shutil
 import os
 from pathlib import Path
-from utils.test.download import download
+from utils.iccma.download import download
 
 
 def setup():
     iccma15 = Path(__file__)\
         .parent\
-        .joinpath("iccma15")\
+        .joinpath("data")\
         .resolve()
     if iccma15.exists() and len(os.listdir(iccma15)) > 0:
         return

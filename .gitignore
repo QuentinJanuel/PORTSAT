@@ -4,7 +4,7 @@ report/report.aux
 report/report.synctex.gz
 report/report.toc
 experiments/graph
-experiments/utils/test/iccma15
+experiments/utils/iccma/data
+experiments/*.csv
 .venv
 **/__pycache__
-experiments/*.csv

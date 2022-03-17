@@ -60,9 +60,10 @@ class Tester:
                         timeout=timeout,
                     )
                     endTimer=time.time()
-                    row.update({solver:endTimer-startTimer})
+                    
                     if guess is None:
                         timeout_count += 1
+                        row.update({solver:timeout*10})
                         continue
                     if not self.check(guess, task, sem):
                         print("Wrong answer")
@@ -73,9 +74,10 @@ class Tester:
                             self._get_solution_file(sem)
                         ))
                         print(f"Guess: {guess}")
+                        row.update({solver:-timeout*100})
                         df=pd.concat([df,pd.DataFrame([row],columns=row.keys())],ignore_index=True)
                         return False, timeout_count,df
-                    
+                    row.update({solver:endTimer-startTimer})
                 df=pd.concat([df,pd.DataFrame([row],columns=row.keys())],ignore_index=True)
 
         return (True, timeout_count,df)

@@ -28,9 +28,9 @@ def gen(
     r = rr.randint(min_sog, max_sog)
     g = Graph(list(range(1, a+1)))
     # grounded = list(range(1, R + 1))
-    if (r>a):
+    if r > a:
         r = a
-    for i in range(1, r ):
+    for i in range(1, r):
         for k in range(i):
             if (rr.random() < att_prob):
                 g.edges.append((g.vertices[i - 1], g.vertices[k]))

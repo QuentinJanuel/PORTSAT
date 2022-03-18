@@ -1,8 +1,8 @@
 from pathlib import Path
-from typing import List, Literal, Tuple
+from typing import List
+from utils.iccma.type import GraphType
 from utils.iccma.setup import setup
-
-GraphType = Literal["gr", "st", "scc"]
+from utils.iccma.iccma_graph import ICCMAGraph
 
 
 def get_graphs(
@@ -13,7 +13,7 @@ def get_graphs(
         .parent\
         .joinpath("data")\
         .resolve()
-    graphs: List[Tuple[Path, GraphType]] = []
+    graphs: List["ICCMAGraph"] = []
     for dir in iccma15.iterdir():
         if "small" not in dir.name:
             continue
@@ -27,5 +27,5 @@ def get_graphs(
         for file in dir.iterdir():
             if file.suffix != ".tgf":
                 continue
-            graphs.append((file, cur_type))
+            graphs.append(ICCMAGraph(file, cur_type))
     return graphs

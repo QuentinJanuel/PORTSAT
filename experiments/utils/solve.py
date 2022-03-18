@@ -2,6 +2,7 @@ import os
 import subprocess
 from pathlib import Path
 from typing import List, Literal
+from utils.problem import Problem
 
 
 def get_exe():
@@ -16,24 +17,26 @@ def get_exe():
 
 def solve(
     input: Path,
-    problem: str,
+    problem: Problem,
     arg: str | None = None,
     solvers: List[str] | None = None,
     format: Literal["tgf", "apx"] = "tgf",
     timeout: float | None = None,
+    opt_flags: List[str] = [],
 ) -> str | None:
     try:
         result = subprocess.run(
             [
                 get_exe(),
                 "-p",
-                problem,
+                str(problem),
                 "-f",
                 input,
                 "-fo",
                 format,
                 *([] if arg is None else ["-a", arg]),
                 *([] if solvers is None else ["-s", ",".join(solvers)]),
+                *opt_flags,
             ],
             capture_output=True,
             text=True,

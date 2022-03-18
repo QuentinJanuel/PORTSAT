@@ -16,6 +16,9 @@ class ICCMAGraph:
     def get_type(self) -> GraphType:
         return self._type
 
+    def get_size(self) -> str:
+        return "small"
+
     def get_solution(self, sem: str) -> str:
         solution = ""
         file = self._get_solution_file(sem)

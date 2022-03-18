@@ -1,10 +1,13 @@
 target
+
 report/report.log
 report/report.aux
 report/report.synctex.gz
 report/report.toc
+
 experiments/graph
 experiments/utils/iccma/data
-experiments/*.csv
+
 .venv
+
 **/__pycache__

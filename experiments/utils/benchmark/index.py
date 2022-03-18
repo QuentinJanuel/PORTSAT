@@ -1,10 +1,11 @@
-from typing import List
+from statistics import mean
+from typing import Dict, List
 from utils.iccma.iccma_graph import ICCMAGraph
 from utils.benchmark.benchmark import benchmark_solve
 from utils.problem import Task, Semantics, Problem
 import numpy as np
-import pandas as pd  # type: ignore
 import matplotlib.pyplot as plt  # type: ignore
+from itertools import product
 
 
 def bench(
@@ -14,72 +15,48 @@ def bench(
     tasks: List[Task],
     timeout: float,
 ):
-    final_csv = pd.DataFrame()
-    for graph in graphs:
-        df = pd.DataFrame(columns=["problem"]+solvers)
-        for task in tasks:
-            for sem in semantics:
-                problem = Problem(task, sem)
-                row = {"problem": str(problem)}
-                for solver in solvers:
-                    secs = benchmark_solve(
-                        input=graph.get_input(),
-                        problem=problem,
-                        solvers=[solver],
-                        arg=None,
-                        timeout=timeout,
-                    )
-                    row.update({solver: str(secs)})
-                df = pd.concat(
-                    [
-                        df,
-                        pd.DataFrame([row], columns=row.keys()),
-                    ],
-                    ignore_index=True,
-                )
-        df["testFileName"] = graph.get_input().name
-        final_csv = pd.concat([final_csv, df])
-    final_csv.fillna(-2, inplace=True)
-    final_csv.to_csv("TEST1234.csv", index=False)
-
-
-def display_graph(csv):
-    df = pd.read_csv(csv)
-    color = ["blue", "red", "orange", "green"]
-    width = 0.35
-    solvers = list(df.columns)[1:-1]
-    df_transformed = df.groupby(["problem"]).mean()
-    x = list(set(df["problem"]))
-    ind = np.arange(len(x))
-    pas = width/len(solvers)
+    stats: Dict[str, float] = {}
+    problems: List[Problem] = [
+        Problem(task, sem)
+        for task, sem in product(tasks, semantics)
+    ]
+    for solver, problem in product(solvers, problems):
+        all_secs: List[float] = []
+        for graph in graphs:
+            secs = benchmark_solve(
+                input=graph.get_input(),
+                problem=problem,
+                solvers=[solver],
+                arg=None,
+                timeout=timeout,
+            )
+            all_secs.append(secs)
+        secs = mean(all_secs)
+        stats[f"{solver}{problem}"] = secs
+    labels = [str(p) for p in problems]
+    x = np.arange(len(labels))
+    width = 1 / (len(solvers) + 1)
+    total_width = width * len(solvers)
+    _, ax = plt.subplots()
     for i, solver in enumerate(solvers):
-        bench = list(df_transformed[solver])
-        j = 2
-        if i > len(solvers) / 2:
-            plt.bar(
-                ind - pas * (j - 1),
-                bench,
-                width=pas,
-                label=solver,
-                color=color[i],
-            )
-            j += 1
-        elif len(solvers) == 2 and i == 2:
-            plt.bar(
-                ind - pas,
-                bench,
-                width=pas,
-                label=solver,
-                color=color[i],
-            )
-        else:
-            plt.bar(
-                ind + pas * i,
-                bench,
-                width=pas,
-                label=solver,
-                color=color[i],
-            )
-    plt.xticks(ind, x)
-    plt.legend(loc="upper right")
+        solver_means = [
+            stats[f"{solver}{p}"]
+            for p in labels
+        ]
+        ax.bar(
+            x - total_width / 2 + width * (i + .5),
+            solver_means,
+            width,
+            label=solver,
+        )
+    ax.set_title(get_title(graphs))
+    ax.set_ylabel("Time (s)")
+    ax.set_xticks(x, labels)
+    ax.legend()
     plt.show()
+
+
+def get_title(graphs: List["ICCMAGraph"]) -> str:
+    g_types = [g.get_type() for g in graphs]
+    g_sizes = [g.get_size() for g in graphs]
+    return f"{' '.join(g_types)}, {' '.join(g_sizes)}"

@@ -38,3 +38,7 @@ In order to compile it, run the following command:
 ```
 cargo build --release
 ```
+In order to install the python dependencies, run
+```
+pip install -r requirements.txt
+```

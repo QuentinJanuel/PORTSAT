@@ -47,6 +47,7 @@ fn main() -> Result<(), String> {
             match format {
                 Format::TGF => AF::from_tgf(&file),
                 Format::APX => AF::from_apx(&file),
+                Format::LooseAPX => AF::from_loose_apx(&file),
             },
         );
         solve(

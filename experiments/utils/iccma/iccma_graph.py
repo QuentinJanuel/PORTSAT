@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List
 from utils.iccma.ext_parser import parse_extension, parse_extensions
-from utils.iccma.type import GraphType
+from utils.iccma.type import GraphType, Format
 from utils.problem import Problem
 
 
@@ -10,8 +10,13 @@ class ICCMAGraph:
         self._input = input
         self._type: GraphType = type
 
-    def get_input(self) -> Path:
-        return self._input
+    def get_input(self, format: Format = "tgf") -> Path:
+        if format == "tgf":
+            return self._input
+        return self\
+            ._input\
+            .parent\
+            .joinpath(f"{self._input.stem}.apx")
 
     def get_type(self) -> GraphType:
         return self._type

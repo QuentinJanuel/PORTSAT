@@ -11,6 +11,7 @@ cargo run --
 ```
 cargo run -- --formats
 ```
+**NOTE:** We have an extra format `loose-apx` which allows for APX file with less assumptions (e.g. the arguments and attacks can be mixed, or there can be multiple definitions per line). If your APX graph fails to parse with the default `apx` format, give a try to `loose-apx`. However the parsing is slower.
 
 ## Print the supported problems
 ```

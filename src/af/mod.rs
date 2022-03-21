@@ -32,7 +32,7 @@ impl AF {
             .unwrap_or_else(|| panic!("Unexisting argument"));
         Var(index as u32)
     }
-    pub fn from_apx(apx: &str) -> Self {
+    pub fn from_loose_apx(apx: &str) -> Self {
         let parser = apx_parser::APXParser::new();
         let (
             s_args,
@@ -52,6 +52,40 @@ impl AF {
             let a_ind = *hm.get(a.as_str()).unwrap();
             let b_ind = *hm.get(b.as_str()).unwrap();
             arguments[b_ind].attackers.push(a_ind);
+        }
+        Self { arguments }
+    }
+    pub fn from_apx(apx: &str) -> Self {
+        let mut hm: HashMap<&str, usize> = HashMap::new();
+        let mut arguments = vec![];
+        let mut in_attacks = false;
+        for s in apx.lines() {
+            let s = s.trim();
+            if s.is_empty() {
+                continue
+            }
+            if !in_attacks && &s[1..=1] == "t" {
+                in_attacks = true;
+            }
+            if !in_attacks {
+                let name = &s[4..s.len() - 2];
+                let arg = Argument {
+                    name: name.into(),
+                    attackers: vec![],
+                };
+                hm.insert(name, arguments.len());
+                arguments.push(arg);
+            } else {
+                let args = &s[4..s.len() - 2];
+                let mut args = args.split(",");
+                let (a, b) = (
+                    args.next().unwrap(),
+                    args.next().unwrap(),
+                );
+                let a_ind = *hm.get(a).unwrap();
+                let b_ind = *hm.get(b).unwrap();
+                arguments[b_ind].attackers.push(a_ind);
+            }
         }
         Self { arguments }
     }

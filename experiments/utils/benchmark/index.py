@@ -59,4 +59,7 @@ def bench(
 def get_title(graphs: List["ICCMAGraph"]) -> str:
     g_types = [g.get_type() for g in graphs]
     g_sizes = [g.get_size() for g in graphs]
+    # TODO: FIX THIS
+    g_types = [*{*g_types}]
+    g_sizes = [*{*g_sizes}]
     return f"{' '.join(g_types)}, {' '.join(g_sizes)}"

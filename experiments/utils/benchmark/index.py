@@ -6,6 +6,7 @@ from utils.problem import Task, Semantics, Problem
 import numpy as np
 import matplotlib.pyplot as plt  # type: ignore
 from itertools import product
+from utils.benchmark.timeouts import Timeouts
 from math import floor
 
 
@@ -21,6 +22,7 @@ def bench(
         Problem(task, sem)
         for task, sem in product(tasks, semantics)
     ]
+    timeouts = Timeouts(timeout)
     cur_progress = 0
     max_progress = len(solvers) * len(problems) * len(graphs)
     for solver, problem in product(solvers, problems):
@@ -34,6 +36,7 @@ def bench(
                 timeout=timeout,
             )
             all_secs.append(secs)
+            timeouts.new_result(solver, secs)
             cur_progress += 1
             percent = cur_progress / max_progress * 100
             print(f"\r{floor(percent)}%" + 10 * " ", end="")
@@ -43,7 +46,7 @@ def bench(
     x = np.arange(len(labels))
     width = 1 / (len(solvers) + 1)
     total_width = width * len(solvers)
-    _, ax = plt.subplots()
+    fig, ax = plt.subplots()
     for i, solver in enumerate(solvers):
         solver_means = [
             stats[f"{solver}{p}"]
@@ -58,6 +61,15 @@ def bench(
     ax.set_title(get_title(graphs))
     ax.set_ylabel("Time (s)")
     ax.set_xticks(x, labels)
+    fig.text(
+        0.5,
+        0.01,
+        str(timeouts),
+        wrap=True,
+        horizontalalignment="right",
+        verticalalignment="top",
+        fontsize=12,
+    )
     ax.legend()
     plt.show()
 

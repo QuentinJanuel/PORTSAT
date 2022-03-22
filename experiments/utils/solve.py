@@ -1,8 +1,9 @@
 import os
 import subprocess
 from pathlib import Path
-from typing import List, Literal
+from typing import List
 from utils.problem import Problem
+from utils.iccma.type import Format
 
 
 def get_exe():
@@ -20,7 +21,7 @@ def solve(
     problem: Problem,
     arg: str | None = None,
     solvers: List[str] | None = None,
-    format: Literal["tgf", "apx"] = "tgf",
+    format: Format = "tgf",
     timeout: float | None = None,
     opt_flags: List[str] = [],
 ) -> str | None:

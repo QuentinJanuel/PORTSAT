@@ -1,4 +1,5 @@
 from typing import List
+from utils.iccma.type import Format
 from utils.iccma.iccma_graph import ICCMAGraph
 from utils.solve import solve
 from itertools import product
@@ -12,6 +13,7 @@ def test(
     semantics: List[Semantics],
     tasks: List[Task],
     timeout: float | None = None,
+    format: Format = "tgf",
 ) -> bool:
     timeout_count, total_count = 0, 0
     maybe_solvers: List[str | None] = [solver for solver in solvers]
@@ -40,10 +42,10 @@ def test(
             end="",
         )
         guess = solve(
-            input=graph.get_input(),
+            input=graph.get_input(format),
             problem=problem,
             solvers=[solver] if solver is not None else None,
-            format="tgf",
+            format=format,
             arg=None,
             timeout=timeout,
         )

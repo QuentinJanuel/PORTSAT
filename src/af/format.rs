@@ -6,6 +6,7 @@ use std::{
 pub enum Format {
     TGF,
     APX,
+    LooseAPX,
 }
 
 impl Format {
@@ -13,6 +14,7 @@ impl Format {
         println!("[{}]", [
             Format::TGF,
             Format::APX,
+            Format::LooseAPX,
         ]
             .iter()
             .map(|f| f.to_string())
@@ -26,6 +28,7 @@ impl fmt::Display for Format {
         match self {
             Format::TGF => write!(f, "tgf"),
             Format::APX => write!(f, "apx"),
+            Format::LooseAPX => write!(f, "loose-apx"),
         }
     }
 }
@@ -36,6 +39,7 @@ impl FromStr for Format {
         match s {
             "tgf" => Ok(Format::TGF),
             "apx" => Ok(Format::APX),
+            "loose-apx" => Ok(Format::LooseAPX),
             _ => Err(format!("Unknown format: {}", s)),
         }
     }

@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt  # type: ignore
 from itertools import product
 from utils.benchmark.timeouts import Timeouts
+from math import floor
 
 
 def bench(
@@ -22,6 +23,8 @@ def bench(
         for task, sem in product(tasks, semantics)
     ]
     timeouts = Timeouts(timeout)
+    cur_progress = 0
+    max_progress = len(solvers) * len(problems) * len(graphs)
     for solver, problem in product(solvers, problems):
         all_secs: List[float] = []
         for graph in graphs:
@@ -34,6 +37,9 @@ def bench(
             )
             all_secs.append(secs)
             timeouts.new_result(solver, secs)
+            cur_progress += 1
+            percent = cur_progress / max_progress * 100
+            print(f"\r{floor(percent)}%" + 10 * " ", end="")
         secs = mean(all_secs)
         stats[f"{solver}{problem}"] = secs
     labels = [str(p) for p in problems]
@@ -69,6 +75,5 @@ def bench(
 
 
 def get_title(graphs: List["ICCMAGraph"]) -> str:
-    g_types = [g.get_type() for g in graphs]
-    g_sizes = [g.get_size() for g in graphs]
-    return f"{' '.join(g_types)}, {' '.join(g_sizes)}"
+    categories = [f"{g.get_type()}-{g.get_size()}" for g in graphs]
+    return ", ".join([*{*categories}])

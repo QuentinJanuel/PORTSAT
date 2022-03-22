@@ -1,12 +1,13 @@
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 from utils.iccma.type import GraphType
 from utils.iccma.setup import setup
+from utils.iccma.type import Size
 from utils.iccma.iccma_graph import ICCMAGraph
 
 
 def get_graphs(
-    types: List[GraphType]
+    selectors: List[Tuple[GraphType, Size]],
 ):
     setup()
     iccma15 = Path(__file__)\
@@ -15,17 +16,24 @@ def get_graphs(
         .resolve()
     graphs: List["ICCMAGraph"] = []
     for dir in iccma15.iterdir():
-        if "small" not in dir.name:
-            continue
         cur_type: GraphType | None = None
-        for type in types:
+        for type, _ in selectors:
             if f"_{type}_" in dir.name:
                 cur_type = type
                 break
         if cur_type is None:
             continue
+        cur_size: Size | None = None
+        for _, size in selectors:
+            if dir.name.endswith(f"_{size}"):
+                cur_size = size
+                break
+        if cur_size is None:
+            continue
         for file in dir.iterdir():
+            if file.name.startswith("."):
+                continue
             if file.suffix != ".tgf":
                 continue
-            graphs.append(ICCMAGraph(file, cur_type))
+            graphs.append(ICCMAGraph(file, cur_type, cur_size))
     return graphs

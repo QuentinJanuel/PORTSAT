@@ -75,14 +75,24 @@ The preferred semantics is more complex. There are two different approaches we w
 The first one is to compute all the complete extensions and \\
  - for SE, return the longest one \\
  - for EE, filter the complete extensions that are subsets of other complete extensions \\
- - for DC, same as EE but then check if the argument belongs to one preferred extension \\
+ - for DC, same as EE but then check if the argument belongs to ne preferred extension \\
  - for DS, same as EE but then check if the argument belongs to all preferred extensions \\
 The second one is to find one complete extension and to try to add arguments to it until not possible.
 
 \section{Building the solver}
-The solver had to be fast so we chose Rust as the language. We first made a library\cite{portfoliolib} to use famous SAT solvers we will then compare. It allows for minisat, manysat and glucose, and also for portfolio that combines these solvers in parallel. Then we made the argumentation solver itself\cite{argsolver}.
+The solver had to be fast so we chose Rust as the language. We first made a library\cite{portfoliolib} to use famous SAT solvers we will then compare. It allows for minisat, manysat and glucose, and also for portfolio that combines these solvers in parallel. Then we made the argumentation solver itself\cite{argsolver}. It has been tested with all kinds of argumentation frameworks so we can be confident that it is likely bug free.
 
-\section{Observations}
+\section{Protocol}
+When benchmarking, we will have a time limit for each problem. If a given solver takes more than this time, we will consider it took 10 times more time. \\
+Also, each problems requires three steps: parse the argumentation framework, convert it to a SAT instance and solve it. We will only measure the latter one since the first two will not vary depending of the choice of the SAT solver.
+
+\section{First observations}
+
+\section{Applying heuristics}
+
+\section{Second observations}
+
+\section{Conclusion}
 
 % Bibliography
 \bibliographystyle{ieeetr}

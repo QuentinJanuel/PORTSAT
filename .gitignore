@@ -7,6 +7,12 @@ report/report.toc
 report/report.bbl
 report/report.blg
 
+miReport/report.log
+miReport/report.aux
+miReport/report.synctex.gz
+miReport/report.toc
+miReport/report.bbl
+miReport/report.blg
 experiments/graph
 experiments/utils/iccma/data
 

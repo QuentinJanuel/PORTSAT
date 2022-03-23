@@ -1,14 +1,7 @@
 \documentclass[11pt]{article}
-\usepackage{tikz}
-\usepackage{pgfplots}
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amssymb}
-
-\pgfplotsset{compat=1.18}
-
-\usetikzlibrary{shapes.geometric, arrows}
-\tikzstyle{item} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!30]\tikzstyle{arrow} = [thick,->,>=stealth]
 
 % Margins
 \topmargin=-0.45in
@@ -38,69 +31,61 @@
 \maketitle
 \newpage
 
-\tableofcontents
-\newpage
+\section{Introduction}
+Argumentation frameworks are widely used in artificial intelligence since they can model formalized arguments and draw conclusions from them. \\
+Formally, an argumentation framework is an oriented graph where the nodes represent the arguments and the edges represent the attacks. To decide if an argument is accepted, we can compute an extension (with regards to a semantics) of the graph, which is a subset of its nodes, and see if the argument belongs to it. \\
+In this paper, we will focus on the following semantics: \textbf{complete}, \textbf{stable}, \textbf{grounded} and \textbf{preferred} \cite{dung1995acceptability}. \\
+We will refer to them as CO, ST, GR and PR from now on.
+Except for the grounded one, finding extensions of these semantics is a hard problem (NP). That's why the \textbf{ICCMA}\cite{iccma} has been organized since 2015 to find the best algorithms. \\ \\
+We will use SAT to compute the extensions, and study the impact of the choice of the SAT solver.
 
-\section{Flowchart}
-\begin{tikzpicture}[node distance=3cm]
-\node(af)[item]{Argumentation Framework};
-\node(log)[item, below of=af]{Logical formula};
-\draw[arrow] (af) -- node[anchor=west, text width=4cm]{\textbf{Translation}\\stable, grounded, ...} (log);
-\node(sat1)[item, below of=log, xshift=-5cm]{1 model};
-\node(satall)[item, below of=log, xshift=5cm]{All models};
-\node[below of=log, yshift=1.5cm]{\textbf{SAT solvers}};
-\draw[arrow] (log) -- (sat1);
-\draw[arrow] (log) -- (satall);
-\node(scept)[item, below of=satall, xshift=-2cm]{Scepticals};
-\node(cred)[item, below of=satall, xshift=2cm]{Credulous};
-\draw[arrow] (satall) -- node[anchor=east]{Intersection} (scept);
-\draw[arrow] (satall) -- node[anchor=west]{Union} (cred);
-\end{tikzpicture}
-\newpage
+\section{Tasks}
+For each semantics, there are four different tasks we are interested in: \\
+ - \textbf{SE}: find one extension, no matter which one \\
+ - \textbf{EE}: find all the extensions \\
+ - \textbf{DC}: decide if a given argument is credulously accepted \\
+ - \textbf{DS}: decide if a given argument is skeptically accepted \\
+An argument is said to be credulously accepted if it is accepted in at least one of the extensions, and skeptically accepted if it is accepted in all of them. \\
+That leaves us with the 16 following problems: SE-CO, SE-ST, SE-GR, SE-PR, EE-CO, EE-ST, EE-GR, EE-PR, DC-CO, DC-ST, DC-GR, DC-PR, DS-CO, DS-ST, DS-GR, DS-PR.
 
-\section{Extensions}
-Let $F := (A, R)$ be an Argumentation Framework and $S \subset A$, then $S$ is
-\begin{itemize}
+\section{SAT}
+We can convert each semantics to a SAT instance.
+Finding one extension is then equivalent to finding a model of the SAT instance, and finding all the extensions is equivalent to enumerating all its models. \\
+For the DC task, we add a clause forcing the argument to be accepted, and then check if the model is satisfiable. \\
+For the DS task, we add a clause forcing the argument to be rejected, and then check if the model is unsatisfiable. \\ \\
+We have the following CNF: \\
+\begin{align}
+\begin{split}
+\text{ST}: &\bigwedge_{a_i\in A}\left(a_i \lor \bigvee_{a_j\in A, (a_j, a_i)\in R}a_j\right), \\
+&\bigwedge_{a_i\in A}\left[\bigwedge_{a_j\in A, (a_j, a_i)\in R}\left(\lnot a_i \lor \lnot a_j\right)\right]
+\end{split}
+\end{align} \\
+\begin{align}
+\begin{split}
+\text{CO}: &\bigwedge_{a_i\in A}\left(\lnot a_i \lor \lnot P_{a_i}\right), \\
+&\bigwedge_{a_i\in A}\left(a_i \lor \bigvee_{a_j\in A, (a_j, a_i)\in R}\lnot P_{a_j}\right), \\
+&\bigwedge_{a_i\in A}\bigwedge_{a_j\in A, (a_j, a_i)\in R}\left(\lnot a_i \lor P_{a_j}\right), \\
+&\bigwedge_{a_i\in A}\left(\lnot P_{a_i} \lor \bigvee_{a_j\in A, (a_j, a_i)\in R}a_j\right), \\
+&\bigwedge_{a_i\in A}\bigwedges_{a_j\in A, (a_j, a_i)\in R}\left(P_{a_i} \lor \lnot a_j\right)
+\end{split}
+\end{align} \\
+where $A$ is the set of arguments and $R$ the set of attacks\cite{lagniez2015coquiaas}. \\
+The grounded semantics is trivial: it is always unique and we are guaranteed to find it by doing a unit propagation, hence its linear time complexity. \\
+The preferred semantics is more complex. There are two different approaches we will compare in this paper. \\
+The first one is to compute all the complete extensions and \\
+ - for SE, return the longest one \\
+ - for EE, filter the complete extensions that are subsets of other complete extensions \\
+ - for DC, same as EE but then check if the argument belongs to one preferred extension \\
+ - for DS, same as EE but then check if the argument belongs to all preferred extensions \\
+The second one is to find one complete extension and to try to add arguments to it until not possible.
 
-\item \textbf{conflict-free} if for all $(a, b)$ in $S^2$, $(a, b)$ is not in $R$.
-$$
-\phi_{cf}(F) = \bigwedge_{(a, b) \in R} \lnot a \lor \lnot b
-$$
-\item \textbf{admissible} if $S$ is conflict-free and defends all its arguments.
-$$
-\phi_{ad}(F) = \phi_{cf}(F) \land \bigwedge_{a \in A} \left( a \implies \bigwedge_{(b, a) \in R} \bigvee_{(c, b) \in R} c \right)
-$$
-\item \textbf{complete} if $S$ is admissible and contains all the arguments that it defends.
-$$
-\phi_{co}(F) = \phi_{cf}(F) \land \bigwedge_{a \in A} \left( a \iff \bigwedge_{(b, a) \in R} \bigvee_{(c, b) \in R} c \right)
-$$
-\item \textbf{grounded} if $S$ is complete and that there is no complete extension $S' \neq S$ such that $S' \subset S$.
-Apply unit propagation to $\phi_{co}$.
-\item \textbf{preferred} if $S$ is complete and that there is no complete extension $S' \neq S$ such that $S \subset S'$.
-There is no encoding to SAT. Instead, use $\phi_{co}$ and if the solution is not preferred, forbid it in the logical formula and try again.
-\item \textbf{stable} if $S$ is conflict-free and attacks all the arguments it does not contain.
-$$
-\phi_{st}(F) = \bigwedge_{a \in A}\left(a \iff \bigwedge_{(b, a)\in R} \lnot b\right)
-$$
+\section{Building the solver}
+The solver had to be fast so we chose Rust as the language. We first made a library\cite{portfoliolib} to use famous SAT solvers we will then compare. It allows for minisat, manysat and glucose, and also for portfolio that combines these solvers in parallel. Then we made the argumentation solver itself\cite{argsolver}.
 
-\newpage
-\section{Schema}
-In the schema below, the arrow is an implication. \\ \\
-\begin{tikzpicture}[node distance=2cm]
-\node(cf)[item]{Conflict-free};
-\node(adm)[item, below of=cf]{Admissible};
-\draw[arrow] (adm) -- (cf);
-\node(comp)[item, below of=adm]{Complete};
-\draw[arrow] (comp) -- (adm);
-\node(grounded)[item, below of=comp, xshift=-4cm]{Grounded};
-\node(preferred)[item, below of=comp, xshift=4cm]{Preferred};
-\draw[arrow] (grounded) -- (comp);
-\draw[arrow] (preferred) -- (comp);
-\node(stable)[item, below of=preferred]{Stable};
-\draw[arrow] (stable) -- (preferred);
-\end{tikzpicture}
+\section{Observations}
 
-\end{itemize}
-
+% Bibliography
+\bibliographystyle{ieeetr}
+\bibliography{./citations}
 
 \end{document}

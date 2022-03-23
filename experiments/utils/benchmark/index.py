@@ -2,20 +2,23 @@ from statistics import mean
 from typing import Dict, List
 from utils.iccma.iccma_graph import ICCMAGraph
 from utils.benchmark.benchmark import benchmark_solve
+from utils.benchmark.randomized_executor import RandomizedExecutor, Job
+from utils.benchmark.timeouts import Timeouts
+from utils.benchmark.export import Export
 from utils.problem import Task, Semantics, Problem
+from itertools import product
+from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt  # type: ignore
-from itertools import product
-from utils.benchmark.timeouts import Timeouts
-from math import floor
 
 
 def bench(
-    graphs: List["ICCMAGraph"],
+    graphs: List[ICCMAGraph],
     solvers: List[str],
     semantics: List[Semantics],
     tasks: List[Task],
     timeout: float,
+    export: Export = Export(Path("results"), ""),
 ):
     stats: Dict[str, float] = {}
     problems: List[Problem] = [
@@ -23,25 +26,34 @@ def bench(
         for task, sem in product(tasks, semantics)
     ]
     timeouts = Timeouts(timeout)
-    cur_progress = 0
-    max_progress = len(solvers) * len(problems) * len(graphs)
+    executor = RandomizedExecutor[float]()
+    for solver, problem, graph in product(solvers, problems, graphs):
+        job = Job[float](
+            benchmark_solve,
+            input=graph.get_input(),
+            problem=problem,
+            solvers=[solver],
+            arg=None,
+            timeout=timeout,
+        )
+        executor.add(f"{solver}{problem}", job)
+    executor.exec_all()
     for solver, problem in product(solvers, problems):
-        all_secs: List[float] = []
-        for graph in graphs:
-            secs = benchmark_solve(
-                input=graph.get_input(),
-                problem=problem,
-                solvers=[solver],
-                arg=None,
-                timeout=timeout,
-            )
-            all_secs.append(secs)
+        results = executor.get_results(f"{solver}{problem}")
+        for secs in results:
             timeouts.new_result(solver, secs)
-            cur_progress += 1
-            percent = cur_progress / max_progress * 100
-            print(f"\r{floor(percent)}%" + 10 * " ", end="")
-        secs = mean(all_secs)
-        stats[f"{solver}{problem}"] = secs
+        stats[f"{solver}{problem}"] = mean(results)
+    save_graph(graphs, solvers, stats, problems, timeouts, export)
+
+
+def save_graph(
+    graphs: List[ICCMAGraph],
+    solvers: List[str],
+    stats: Dict[str, float],
+    problems: List[Problem],
+    timeouts: Timeouts,
+    export: Export,
+):
     labels = [str(p) for p in problems]
     x = np.arange(len(labels))
     width = 1 / (len(solvers) + 1)
@@ -71,7 +83,13 @@ def bench(
         fontsize=12,
     )
     ax.legend()
-    plt.show()
+    plt.savefig(
+        f"{export.get_file_name(ax.get_title())}.png",
+        facecolor="white",
+        transparent=False,
+        bbox_inches="tight",
+    )
+    plt.close()
 
 
 def get_title(graphs: List["ICCMAGraph"]) -> str:

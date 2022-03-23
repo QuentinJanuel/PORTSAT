@@ -1,12 +1,12 @@
 from time import time
 from pathlib import Path
-from typing import List
+from typing import Callable, List, Tuple, Dict, Any
 from utils.solve import solve
 from utils.problem import Problem
 import re
 
 
-def benchmark_fun(fun, *args, **kwargs) -> float:
+def benchmark_fun(fun: Callable, *args: Tuple, **kwargs: Dict[str, Any]) -> float:
     start = time()
     fun(*args, **kwargs)
     end = time()

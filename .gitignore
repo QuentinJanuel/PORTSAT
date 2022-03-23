@@ -9,6 +9,8 @@ report/report.blg
 
 experiments/graph
 experiments/utils/iccma/data
+experiments/results
+experiments/results-old
 
 .venv
 

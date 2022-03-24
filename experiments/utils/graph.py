@@ -1,6 +1,7 @@
 from io import TextIOWrapper
 import os
 from typing import Callable, Tuple, List
+import networkx as nx
 
 
 class Graph:
@@ -54,3 +55,10 @@ class Graph:
                 a1, a2 = line[4:-2].split(",")
                 edges.append((a1, a2))
         return Graph(vertices, edges)
+
+    @staticmethod
+    def from_networkx(nx_graph: nx.Graph) -> "Graph":
+        return Graph(
+            [n for n in nx_graph.nodes],
+            [e for e in nx_graph.edges],
+        )

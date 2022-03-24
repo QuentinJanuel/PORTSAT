@@ -3,9 +3,9 @@ from utils.graph import Graph
 from typing import List
 
 
-def _random_set(v: List[int], size: int):
+def _random_set(v: List[int], size: int) -> List[int]:
     v_cop = v.copy()
-    set = []
+    set: List[int] = []
     while(len(set) < size):
         if v_cop == []:
             return set
@@ -26,7 +26,7 @@ def gen(
     x = rr.randint(min_ne, max_ne)
     s = rr.randint(min_soe, max_soe)
     r = rr.randint(min_sog, max_sog)
-    g = Graph(list(range(1, a+1)))
+    g = Graph([str(n) for n in range(1, a + 1)])
     # grounded = list(range(1, R + 1))
     if r > a:
         r = a
@@ -34,10 +34,10 @@ def gen(
         for k in range(i):
             if (rr.random() < att_prob):
                 g.edges.append((g.vertices[i - 1], g.vertices[k]))
-    for _ in range(1, x+1):
+    for _ in range(x):
         m = _random_set(g.vertices, s)
         for i in range(r + 1, a + 1):
             if not g.vertices[i - 1] in m:
                 ak = m[rr.randint(0, len(m) - 1)]
-                g.edges.append((ak, g.vertices[i - 1]))
+                g.edges.append((str(ak), g.vertices[i - 1]))
     return g

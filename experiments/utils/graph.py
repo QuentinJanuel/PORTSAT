@@ -6,8 +6,8 @@ from typing import Callable, Tuple, List
 class Graph:
     def __init__(
         self,
-        vertices: List[int],
-        edges: List[Tuple[int, int]] = [],
+        vertices: List[str],
+        edges: List[Tuple[str, str]] = [],
     ):
         self.vertices = vertices
         self.edges = edges
@@ -42,3 +42,15 @@ class Graph:
             os.makedirs("graph")
         with open(f"graph/{file_name}", "w") as file:
             writer(file)
+
+    @staticmethod
+    def from_apx(apx: str) -> "Graph":
+        vertices = []
+        edges = []
+        for line in apx.split("\n"):
+            if line.startswith("arg("):
+                vertices.append(line[4:-2])
+            if line.startswith("att("):
+                a1, a2 = line[4:-2].split(",")
+                edges.append((a1, a2))
+        return Graph(vertices, edges)

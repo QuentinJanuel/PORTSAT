@@ -11,10 +11,10 @@ def gen(
 ):
     a = rr.randint(1, max_a)
     n = rr.randint(1, max_num_scc)
-    g = Graph(list(range(1, a+1)))
-    c = [[]]*n
+    g = Graph([str(n) for n in range(1, a + 1)])
+    c = [[]] * n
     for i in range(a):
-        k = rr.randint(0, n-1)
+        k = rr.randint(0, n - 1)
         c[k].append(g.vertices[i])
     for i in range(n):
         for arg1 in c[i]:
@@ -23,9 +23,10 @@ def gen(
                     g.edges.append((arg1, arg2))
     for i in range(n - 1):
         for j in range(i + 1, n):
-            if rr.random() < connect_prob:
-                for arg1 in c[i]:
-                    for arg2 in c[j]:
-                        if rr.random() < att_prob_outer:
-                            g.edges.append((arg1, arg2))
+            if rr.random() >= connect_prob:
+                continue
+            for arg1 in c[i]:
+                for arg2 in c[j]:
+                    if rr.random() < att_prob_outer:
+                        g.edges.append((arg1, arg2))
     return g

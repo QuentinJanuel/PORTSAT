@@ -1,6 +1,10 @@
 #!/bin/sh
 
-cd report
+if [ "$1" = "mid" ]; then
+    cd mid-report
+else
+    cd report
+fi
 
 compile() {
     pdflatex -interaction nonstopmode report.tex

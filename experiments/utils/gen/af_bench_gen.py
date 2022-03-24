@@ -23,7 +23,7 @@ def generate_graph(
     ba_ws_prob_cycles: float = 0.0,
     er_prob_attacks: float = 0.0,
     ws_base_degree: int = 0,
-    ws_beta: int = 0.0,
+    ws_beta: float = 0.0,
 ) -> Graph:
     result = subprocess.run(
         [

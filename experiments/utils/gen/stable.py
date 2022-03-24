@@ -3,10 +3,10 @@ from utils.graph import Graph
 from typing import List
 
 
-def _random_set(v: List[int], size: int) -> List[int]:
+def _random_set(v: List[str], size: int) -> List[str]:
     v_cop = v.copy()
-    set: List[int] = []
-    while(len(set) < size):
+    set: List[str] = []
+    while len(set) < size:
         if v_cop == []:
             return set
         num = rr.randint(0, len(v_cop) - 1)

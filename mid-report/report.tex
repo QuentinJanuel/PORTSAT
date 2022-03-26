@@ -56,13 +56,19 @@ That's why we have two versions of glucose, one with the preprocessing enabled a
 We also can start several solvers at the same time using threads. Thus if we don't know what solver to use, we can run all of them and stop when one of them finds a solution.
 
 \section{Frameworks generation}
-In the purpose of helping us with the experimentations, we reimplemented the three generators from the 2015 ICCMA\cite{arg2017Generator}, namely \textbf{gr}, \textbf{st} and \textbf{scc}.
-
-\section{ICCMA graphs}
-We also downloaded the graphs from the 2015 ICCMA. The first purpose of this was to use the graphs for benchmarking. But since they came with solutions, we also used them for unit testing. Our solver seems bug free, so we can start the experiments.
+In the purpose of helping us with the experimentations, we reimplemented the three generators from the 2015 ICCMA\cite{arg2017Generator}, namely \textbf{gr}, \textbf{st} and \textbf{scc}. We also downloaded the graphs from the 2015 ICCMA. The first purpose of this was to use the graphs for benchmarking. But since they came with solutions, we also used them for unit testing. Our solver seems bug free, so we can start the experiments. Finally, we also use NetworkX to generate graphs with specific properties.
 
 \section{Experimentations protocol}
 Several factors can make the execution time vary. In order to avoid any bias, we shuffled the benchmark tests such that if the computer slows down at any time it wouldn't favor any particular solver. We also just mesure the SAT solving time instead of the whole time because the rest should be constant no matter the solver.
+
+\section{What's next?}
+We are currently planning to work on the following aspects:
+\begin{itemize}
+\item Add new solvers to make the experimentations more interesting
+\item Implement the other method for problems related to the preferred semantics
+\item Determine relevant criterias that can be easily identified by the solver
+\item Use the experimentations' results to improve the solver using heuristics
+\end{itemize}
 
 % Bibliography
 \bibliographystyle{ieeetr}

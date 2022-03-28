@@ -34,14 +34,14 @@
 
 \section{Implementation details}
 We have chosen to implement the solver in Rust. It is composed of two main parts. \\
-The first one allows us to interact with several SAT solvers: it provides bindings famous C++ solvers such as minisat, manysat and glucose. We also added in our own SAT solver based on the DPLL algorithm, mainly for comparison purposes. \\
+The first one allows us to interact with several SAT solvers: it provides bindings to famous C++ solvers such as minisat, manysat and glucose. We also added our own SAT solver based on the DPLL algorithm, mainly for comparison purposes. \\
 The second part uses the first one to solve computational problems. It first parses the input file as an argumentation framework, then it converts it to a suitable CNF formula, and finally it solves it using a SAT solver. \\
-We made sure to follow the ICCMA solver interface\cite{iccma}.
+We made sure to follow the ICCMA solver interface specifications\cite{iccma}.
 
 \section{Speed improvements}
 While the considered hard part of the solver is the SAT part, we had some speed issues on parts supposed to be fast.
 \subsection{Parsing}
-Our solver can parse argumentation frameworks in both the CNF and the Aspartix format. While the former is really efficient, the latter cannot be as fast because we the arguments and attacks declarations can be mixed. However we noticed it is a convention to always have the arguments at first and the attacks at the end of the file. If we know the file fulfils this convention, we can parse it much faster. So that's what we did, but we still kept the slower option just in case, which we named "loose-apx".
+Our solver can parse argumentation frameworks in both the TGF and the Aspartix format. While the former is really efficient, the latter cannot be as fast because we the arguments and attacks declarations can be mixed. However we noticed it is a convention to always have the arguments at first and the attacks at the end of the file. If we know the file fulfils this convention, we can parse it much faster. So that's what we did, but we still kept the slower option just in case, which we named "loose-apx".
 \subsection{CNF generation}
 We could drastically improve the CNF generation by changing the data structure used to store the argumentation framework graph. At first, we represented them as a list of arguments and a list of attacks. Instead we now use a list of arguments with its attackers. This way, we can generate the CNF in a single pass.
 
@@ -56,13 +56,19 @@ That's why we have two versions of glucose, one with the preprocessing enabled a
 We also can start several solvers at the same time using threads. Thus if we don't know what solver to use, we can run all of them and stop when one of them finds a solution.
 
 \section{Frameworks generation}
-In the purpose of helping us with the experimentations, we reimplemented the three generators from the 2015 ICCMA\cite{arg2017Generator}, namely \textbf{gr}, \textbf{st} and \textbf{scc}.
-
-\section{ICCMA graphs}
-We also downloaded the graphs from the 2015 ICCMA. The first purpose of this was to use the graphs for benchmarking. But since they came with solutions, we also used them for unit testing. Our solver seems bug free, so we can start the experiments.
+In the purpose of helping us with the experimentations, we reimplemented the three generators from the 2015 ICCMA\cite{arg2017Generator}, namely \textbf{gr}, \textbf{st} and \textbf{scc}. We also downloaded the graphs from the 2015 ICCMA. The first purpose of this was to use the graphs for benchmarking. But since they came with solutions, we also used them for unit testing. Our solver seems bug free, so we can start the experiments. Finally, we also use NetworkX to generate graphs with specific properties.
 
 \section{Experimentations protocol}
 Several factors can make the execution time vary. In order to avoid any bias, we shuffled the benchmark tests such that if the computer slows down at any time it wouldn't favor any particular solver. We also just mesure the SAT solving time instead of the whole time because the rest should be constant no matter the solver.
+
+\section{What's next?}
+We are currently planning to work on the following aspects:
+\begin{itemize}
+\item Add new solvers to make the experimentations more interesting
+\item Implement the other method for problems related to the preferred semantics
+\item Determine relevant criterias that can be easily identified by the solver
+\item Use the experimentations' results to improve the solver using heuristics
+\end{itemize}
 
 % Bibliography
 \bibliographystyle{ieeetr}

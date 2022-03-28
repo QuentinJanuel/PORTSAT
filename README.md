@@ -33,6 +33,15 @@ cargo run -- -p DC-CO -s manysat,dpll -f graph.tgf -fo tgf -a a
 ```
 **NOTE**: You cannot set the solvers when the problem involves the grounded extension.
 
+## Prerequisite
+ - [Rust](https://www.rust-lang.org/)
+ - [Python](https://www.python.org/) (10.0 or higher)
+### MacOS
+Make sure to have the `libomp` library installed. If you don't, you can install it with the following command:
+```bash
+brew install libomp
+```
+
 ## Compile
 The Python scripts will attempt to use the release version of the solver.
 In order to compile it, run the following command:

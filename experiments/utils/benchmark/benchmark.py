@@ -5,25 +5,20 @@ from utils.solve import solve
 from utils.problem import Problem
 import re
 
-
 def benchmark_fun(
-    
     fun: Callable,
     *args: Any,
     **kwargs: Any,
 ) -> float:
     """
-    Function takes a function and it's arguments and evaluate the time elapsed in the execution
+    Runs the function passed as parameter and returns the execution time in seconds.
 
-    Parameters :
-    ------------
-    fun: Callable
-    *args: Any
-    **kwargs: Any
-
-    Return :
-    --------
-    Execution time of the function : float
+    Example :
+    ---------
+    >>> def sum(a, b):
+    ...     return a + b
+    ...
+    >>> benchmark_fun(sum, 1, 2)
     """
     start = time()
     fun(*args, **kwargs)
@@ -40,22 +35,20 @@ def benchmark_solve(
     mesure_only_sat_solving: bool = True,
 ) -> float:
     """
-    Return benchmark of argumentation solver or just the sat solver:
-    sat solver : Parse solver output 
-    argumentation solver : python benchmarking (benchmark_fun)
+    Returns the execution time in seconds of the solver and problem passed as parameters.
 
     Parameters :
     ------------
-    input: Path
-    problem: Problem
-    solvers: List[str]
-    timeout: float
-    arg: str | None = None
-    mesure_only_sat_solving: bool = True
+    input: the path to the input file
+    problem: the problem to solve
+    solvers: the list of solvers to use, they will be executed in parallel
+    timeout: (seconds) if the solver times out, it will return 10 times the timeout
+    arg: (optional) the argument to check for DS and DC tasks
+    mesure_only_sat_solving: (default is True) if set to true, only the SAT part will be measured
 
-    Return :
-    --------
-    Execution time of the function : float
+    Example :
+    ---------
+    >>> benchmark_solve(Path("input.tgf"), Problem("SE", "GR"), ["minisat"], 10 * 60)
     """
     if mesure_only_sat_solving:
         output = solve(

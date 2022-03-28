@@ -21,11 +21,26 @@ def bench(
     export: Export = Export(Path("results"), ""),
 ):
     """
-    Save benchmark graph
-    Create multiple benchmarking job in function of the problem solving parameters to execute
-    Execute them randomly
-    Add the timeouts to the results
-    take the results mean and create the graph
+    Generates a benchmark graph for the given graphs, solvers and semantics.
+
+    Parameters :
+    ------------
+    graphs: the graphs to benchmark
+    solvers: the solvers to benchmark
+    semantics: the semantics to benchmark
+    tasks: the tasks to benchmark
+    timeout: the timeout to use for the benchmark
+    export: (optional) sets where to export the graph
+
+    Example :
+    ---------
+    >>> bench(
+    ...     graphs=get_graphs([("scc", "medium")]),
+    ...     solvers=["minisat", "manysat"],
+    ...     semantics=["PR"],
+    ...     tasks=["SE"],
+    ...     timeout=10 * 60,
+    ... )
     """
     stats: Dict[str, float] = {}
     problems: List[Problem] = [

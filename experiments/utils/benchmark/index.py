@@ -20,6 +20,13 @@ def bench(
     timeout: float,
     export: Export = Export(Path("results"), ""),
 ):
+    """
+    Save benchmark graph
+    Create multiple benchmarking job in function of the problem solving parameters to execute
+    Execute them randomly
+    Add the timeouts to the results
+    take the results mean and create the graph
+    """
     stats: Dict[str, float] = {}
     problems: List[Problem] = [
         Problem(task, sem)

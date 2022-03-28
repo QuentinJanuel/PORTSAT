@@ -7,10 +7,24 @@ import re
 
 
 def benchmark_fun(
+    
     fun: Callable,
     *args: Any,
     **kwargs: Any,
 ) -> float:
+    """
+    Function takes a function and it's arguments and evaluate the time elapsed in the execution
+
+    Parameters :
+    ------------
+    fun: Callable
+    *args: Any
+    **kwargs: Any
+
+    Return :
+    --------
+    Execution time of the function : float
+    """
     start = time()
     fun(*args, **kwargs)
     end = time()
@@ -25,6 +39,24 @@ def benchmark_solve(
     arg: str | None = None,
     mesure_only_sat_solving: bool = True,
 ) -> float:
+    """
+    Return benchmark of argumentation solver or just the sat solver:
+    sat solver : Parse solver output 
+    argumentation solver : python benchmarking (benchmark_fun)
+
+    Parameters :
+    ------------
+    input: Path
+    problem: Problem
+    solvers: List[str]
+    timeout: float
+    arg: str | None = None
+    mesure_only_sat_solving: bool = True
+
+    Return :
+    --------
+    Execution time of the function : float
+    """
     if mesure_only_sat_solving:
         output = solve(
             input=input,

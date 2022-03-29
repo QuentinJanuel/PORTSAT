@@ -6,6 +6,7 @@ from utils.benchmark.benchmark import benchmark_solve
 from utils.benchmark.randomized_executor import RandomizedExecutor, Job
 from utils.benchmark.timeouts import Timeouts
 from utils.benchmark.export import Export
+from utils.benchmark.get_args import GetArgs
 from utils.problem import Task, Semantics, Problem
 from itertools import product
 from pathlib import Path
@@ -52,17 +53,9 @@ def bench(
     executor = RandomizedExecutor[float]()
     for problem, iccma_graph in product(problems, iccma_graphs):
         graph = Graph.from_iccma_graph(iccma_graph)
-        cred_arg = graph.get_cred_arg(problem.get_sem())
-        non_cred_arg = graph.get_non_cred_arg(problem.get_sem())
-        skept_arg = graph.get_skept_arg(problem.get_sem())
-        non_skept_arg = graph.get_non_skept_arg(problem.get_sem())
+        get_args = GetArgs(graph, problem)
         for solver in solvers:
-            args = [None]
-            if problem.get_task() == "DC":
-                args = [cred_arg, non_cred_arg]
-            if problem.get_task() == "DS":
-                args = [skept_arg, non_skept_arg]
-            for arg in args:
+            for arg in get_args.get():
                 job = Job[float](
                     benchmark_solve,
                     input=iccma_graph.get_input(),

@@ -5,13 +5,15 @@ from utils.solve import solve
 from utils.problem import Problem
 import re
 
+
 def benchmark_fun(
     fun: Callable,
     *args: Any,
     **kwargs: Any,
 ) -> float:
     """
-    Runs the function passed as parameter and returns the execution time in seconds.
+    Runs the function passed as parameter
+    and returns the execution time in seconds.
 
     Example :
     ---------
@@ -35,20 +37,28 @@ def benchmark_solve(
     mesure_only_sat_solving: bool = True,
 ) -> float:
     """
-    Returns the execution time in seconds of the solver and problem passed as parameters.
+    Returns the execution time in seconds of
+    the solver and problem passed as parameters.
 
     Parameters :
     ------------
     input: the path to the input file
     problem: the problem to solve
     solvers: the list of solvers to use, they will be executed in parallel
-    timeout: (seconds) if the solver times out, it will return 10 times the timeout
+    timeout: (seconds) if the solver times out,
+    it will return 10 times the timeout
     arg: (optional) the argument to check for DS and DC tasks
-    mesure_only_sat_solving: (default is True) if set to true, only the SAT part will be measured
+    mesure_only_sat_solving: (default is True) if set to true,
+    only the SAT part will be measured
 
     Example :
     ---------
-    >>> benchmark_solve(Path("input.tgf"), Problem("SE", "GR"), ["minisat"], 10 * 60)
+    >>> benchmark_solve(
+    ...     Path("input.tgf"),
+    ...     Problem("SE", "GR"),
+    ...     ["minisat"],
+    ...     10 * 60,
+    ... )
     """
     if mesure_only_sat_solving:
         output = solve(

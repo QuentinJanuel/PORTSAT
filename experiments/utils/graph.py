@@ -21,32 +21,20 @@ class Graph:
         self.vertices = vertices
         self.edges = edges
 
-    def get_cred_arg(self, sem: Semantics) -> str | None:
-        return self.get_skept_arg(sem)
-
-    def get_non_cred_arg(self, sem: Semantics) -> str | None:
+    def get_extensions(
+        self,
+        sem: Semantics,
+        timeout: float | None = None,
+    ) -> List[List[str]] | None:
         tmp = Path(tempfile.mkdtemp())
         file = self.save_tgf("get_arg", tmp)
         problem = Problem("EE", sem)
-        print(problem)
-        print(file)
-        result = solve(
-            file,
-            problem,
-            timeout=5 * 60,
-        )
+        result = solve(file, problem, timeout=timeout)
         if result is None:
             return None
         extensions = parse_extensions(result)
-        print(extensions)
         shutil.rmtree(tmp)
-        return self.vertices[0]
-
-    def get_skept_arg(self, sem: Semantics) -> str | None:
-        return self.vertices[0]
-
-    def get_non_skept_arg(self, sem: Semantics) -> str | None:
-        return self.get_non_cred_arg(sem)
+        return extensions
 
     def save(
         self,

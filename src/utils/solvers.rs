@@ -28,11 +28,11 @@ fn get_all() -> HashMap<String, SolverGen> {
     });
     {
         #[cfg(not(target_os = "windows"))]
-        {
+        hashmap.insert("glucose-syrup".into(), || {
             let mut s = Glucose::new();
             s.enable_syrup();
-            hashmap.insert("glucose-syrup".into(), || Box::new(s));
-        }
+            Box::new(s)
+        });
     }
     hashmap
 }

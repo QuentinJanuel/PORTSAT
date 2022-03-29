@@ -1,7 +1,15 @@
 from io import TextIOWrapper
 import os
+import tempfile
+import shutil
 from typing import Callable, Tuple, List
+from utils.problem import Problem
+from utils.iccma.iccma_graph import ICCMAGraph
+from utils.problem import Semantics
+from utils.solve import solve
+from utils.iccma.ext_parser import parse_extensions
 import networkx as nx
+from pathlib import Path
 
 
 class Graph:
@@ -13,36 +21,86 @@ class Graph:
         self.vertices = vertices
         self.edges = edges
 
-    def save(self, file_name: str):
-        self.save_apx(file_name)
-        self.save_tgf(file_name)
+    def get_cred_arg(self, sem: Semantics) -> str | None:
+        return self.get_skept_arg(sem)
 
-    def save_tgf(self, file_name: str):
+    def get_non_cred_arg(self, sem: Semantics) -> str | None:
+        tmp = Path(tempfile.mkdtemp())
+        file = self.save_tgf("get_arg", tmp)
+        problem = Problem("EE", sem)
+        print(problem)
+        print(file)
+        result = solve(
+            file,
+            problem,
+            timeout=5 * 60,
+        )
+        if result is None:
+            return None
+        extensions = parse_extensions(result)
+        print(extensions)
+        shutil.rmtree(tmp)
+        return self.vertices[0]
+
+    def get_skept_arg(self, sem: Semantics) -> str | None:
+        return self.vertices[0]
+
+    def get_non_skept_arg(self, sem: Semantics) -> str | None:
+        return self.get_non_cred_arg(sem)
+
+    def save(
+        self,
+        file_name: str,
+        path: Path = Path("graph"),
+    ) -> Tuple[Path, Path]:
+        a = self.save_apx(file_name, path)
+        b = self.save_tgf(file_name, path)
+        return a, b
+
+    def save_tgf(
+        self,
+        file_name: str,
+        path: Path = Path("graph"),
+    ) -> Path:
         def writer(f: TextIOWrapper):
             for v in self.vertices:
                 f.write(f"{v}\n")
             f.write("#\n")
             for v1, v2 in self.edges:
                 f.write(f"{v1} {v2}\n")
-        self._write(f"{file_name}.tgf", writer)
+        return self._write(f"{file_name}.tgf", writer, path)
 
-    def save_apx(self, file_name: str):
+    def save_apx(
+        self,
+        file_name: str,
+        path: Path = Path("graph"),
+    ) -> Path:
         def writer(f: TextIOWrapper):
             for v in self.vertices:
                 f.write(f"arg({v}).\n")
             for v1, v2 in self.edges:
                 f.write(f"att({v1},{v2}).\n")
-        self._write(f"{file_name}.apx", writer)
+        return self._write(f"{file_name}.apx", writer, path)
 
     def _write(
         self,
         file_name: str,
         writer: Callable[[TextIOWrapper], None],
-    ):
-        if not os.path.exists("graph"):
-            os.makedirs("graph")
-        with open(f"graph/{file_name}", "w") as file:
-            writer(file)
+        path: Path,
+    ) -> Path:
+        if not os.path.exists(path):
+            os.makedirs(path)
+        file = path.joinpath(file_name)
+        with open(file, "w") as f:
+            writer(f)
+        return file
+
+    @staticmethod
+    def from_iccma_graph(graph: ICCMAGraph):
+        apx = graph\
+            .get_input("apx")\
+            .read_text()
+        return Graph.from_apx(apx)
 
     @staticmethod
     def from_apx(apx: str) -> "Graph":

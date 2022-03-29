@@ -1,5 +1,6 @@
 from statistics import mean
 from typing import Dict, List
+from utils.graph import Graph
 from utils.iccma.iccma_graph import ICCMAGraph
 from utils.benchmark.benchmark import benchmark_solve
 from utils.benchmark.randomized_executor import RandomizedExecutor, Job
@@ -13,7 +14,7 @@ import matplotlib.pyplot as plt  # type: ignore
 
 
 def bench(
-    graphs: List[ICCMAGraph],
+    iccma_graphs: List[ICCMAGraph],
     solvers: List[str],
     semantics: List[Semantics],
     tasks: List[Task],
@@ -49,27 +50,39 @@ def bench(
     ]
     timeouts = Timeouts(timeout)
     executor = RandomizedExecutor[float]()
-    for solver, problem, graph in product(solvers, problems, graphs):
-        job = Job[float](
-            benchmark_solve,
-            input=graph.get_input(),
-            problem=problem,
-            solvers=[solver],
-            arg=None,
-            timeout=timeout,
-        )
-        executor.add(f"{solver}{problem}", job)
+    for problem, iccma_graph in product(problems, iccma_graphs):
+        graph = Graph.from_iccma_graph(iccma_graph)
+        cred_arg = graph.get_cred_arg(problem.get_sem())
+        non_cred_arg = graph.get_non_cred_arg(problem.get_sem())
+        skept_arg = graph.get_skept_arg(problem.get_sem())
+        non_skept_arg = graph.get_non_skept_arg(problem.get_sem())
+        for solver in solvers:
+            args = [None]
+            if problem.get_task() == "DC":
+                args = [cred_arg, non_cred_arg]
+            if problem.get_task() == "DS":
+                args = [skept_arg, non_skept_arg]
+            for arg in args:
+                job = Job[float](
+                    benchmark_solve,
+                    input=iccma_graph.get_input(),
+                    problem=problem,
+                    solvers=[solver],
+                    arg=arg,
+                    timeout=timeout,
+                )
+                executor.add(f"{solver}{problem}", job)
     executor.exec_all()
     for solver, problem in product(solvers, problems):
         results = executor.get_results(f"{solver}{problem}")
         for secs in results:
             timeouts.new_result(solver, secs)
         stats[f"{solver}{problem}"] = mean(results)
-    save_graph(graphs, solvers, stats, problems, timeouts, export)
+    save_graph(iccma_graphs, solvers, stats, problems, timeouts, export)
 
 
 def save_graph(
-    graphs: List[ICCMAGraph],
+    iccma_graphs: List[ICCMAGraph],
     solvers: List[str],
     stats: Dict[str, float],
     problems: List[Problem],
@@ -92,7 +105,7 @@ def save_graph(
             width,
             label=solver,
         )
-    ax.set_title(get_title(graphs))
+    ax.set_title(get_title(iccma_graphs))
     ax.set_ylabel("Time (s)")
     ax.set_xticks(x, labels)
     fig.text(
@@ -114,6 +127,6 @@ def save_graph(
     plt.close()
 
 
-def get_title(graphs: List["ICCMAGraph"]) -> str:
-    categories = [f"{g.get_type()}-{g.get_size()}" for g in graphs]
+def get_title(iccma_graphs: List["ICCMAGraph"]) -> str:
+    categories = [f"{g.get_type()}-{g.get_size()}" for g in iccma_graphs]
     return ", ".join([*{*categories}])

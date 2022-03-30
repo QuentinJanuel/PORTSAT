@@ -1,5 +1,5 @@
 mod enum_co;
-mod fill;
+mod mss;
 
 use crate::{
     af::AF,
@@ -11,10 +11,11 @@ pub fn solve(
     af: &AF,
     task: &Task,
     sat_solver: Option<Box<dyn Solver>>,
+    mss: bool,
 ) {
-    if true {
-        enum_co::solve(af, task, sat_solver)
+    if mss {
+        mss::solve(af, task, sat_solver)
     } else {
-        fill::solve(af, task, sat_solver)
+        enum_co::solve(af, task, sat_solver)
     }
 }

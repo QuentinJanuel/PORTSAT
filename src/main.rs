@@ -54,6 +54,7 @@ fn main() -> Result<(), String> {
             af,
             problem,
             solvers::get_from_arg(args.get("-s")),
+            args.has("--pr-mss"),
         )?;
     } else {
         utils::details();

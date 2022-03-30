@@ -25,19 +25,20 @@ cargo run -- --solvers
 
 ## Solve a given problem
 ```
-cargo run -- -p <problem> -f <file> -fo <fileformat> [-a <additional_parameter>] [-s <solvers>]
+cargo run -- -p <problem> -f <file> -fo <fileformat> [-a <additional_parameter>] [-s <solvers>] [--pr-mss]
 ```
 Example:
 ```
 cargo run -- -p DC-CO -s manysat,dpll -f graph.tgf -fo tgf -a a
 ```
 **NOTE**: You cannot set the solvers when the problem involves the grounded extension.
+**NOTE2**: The `--pr-mss` flag will make the solver use the MSS algorithms for the preferred semantics. Otherwise it will enumerate all complete extensions and filter the ones that are preferred.
 
 ## Prerequisite
  - [Rust](https://www.rust-lang.org/)
  - [Python](https://www.python.org/) (10.0 or higher)
 ### MacOS
-Make sure to have the `libomp` library installed. If you don't, you can install it with the following command:
+Make sure to have the `libomp` library installed. If you do not, you can install it with the following command:
 ```bash
 brew install libomp
 ```

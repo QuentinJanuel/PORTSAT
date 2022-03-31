@@ -49,7 +49,7 @@ def solve(
                 file,
                 "-fo",
                 format,
-                *([] if arg is None else ["-a", arg]),
+                *([] if arg is None else ["-a", str(arg)]),
                 *([] if solvers is None else ["-s", ",".join(solvers)]),
                 *opt_flags,
             ],

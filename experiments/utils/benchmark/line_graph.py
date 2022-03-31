@@ -79,3 +79,12 @@ def save_graph(
         bbox_inches="tight",
     )
     plt.close()
+
+
+def frange(start: float, stop: float, step: float) -> Sequence[float]:
+    seq = []
+    i = start
+    while i < stop:
+        seq.append(i)
+        i += step
+    return seq

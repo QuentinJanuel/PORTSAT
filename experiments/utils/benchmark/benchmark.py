@@ -1,8 +1,8 @@
 from time import time
-from pathlib import Path
 from typing import Callable, List, Any
 from utils.solve import solve
 from utils.problem import Problem
+from utils.graph import Graph
 import re
 
 
@@ -29,7 +29,7 @@ def benchmark_fun(
 
 
 def benchmark_solve(
-    input: Path,
+    graph: Graph,
     problem: Problem,
     solvers: List[str],
     timeout: float,
@@ -62,7 +62,7 @@ def benchmark_solve(
     """
     if mesure_only_sat_solving:
         output = solve(
-            input=input,
+            graph=graph,
             problem=problem,
             arg=arg,
             solvers=solvers,
@@ -87,7 +87,7 @@ def benchmark_solve(
     else:
         s = benchmark_fun(
             solve,
-            input=input,
+            graph=graph,
             problem=problem,
             arg=arg,
             solvers=solvers,

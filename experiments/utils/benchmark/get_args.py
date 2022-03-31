@@ -12,10 +12,13 @@ class GetArgs:
     ):
         self._vertices: List[str] = graph.vertices
         self._problem: Problem = problem
-        self._extensions: List[List[str]] | None = graph.get_extensions(
-            self._problem.get_sem(),
-            timeout,
-        )
+        self._extensions: List[List[str]] | None = None
+        task = problem.get_task()
+        if task == "DC" or task == "DS":
+            self._extensions = graph.get_extensions(
+                self._problem.get_sem(),
+                timeout,
+            )
         self._cred: str | None = None
         self._non_cred: str | None = None
         self._skept: str | None = None

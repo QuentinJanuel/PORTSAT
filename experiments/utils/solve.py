@@ -1,9 +1,14 @@
 import os
+import tempfile
+import shutil
 import subprocess
 from pathlib import Path
-from typing import List
+from typing import List, TYPE_CHECKING
 from utils.problem import Problem
 from utils.iccma.type import Format
+
+if TYPE_CHECKING:
+    from utils.graph import Graph
 
 
 def get_exe():
@@ -17,7 +22,7 @@ def get_exe():
 
 
 def solve(
-    input: Path,
+    graph: "Graph",
     problem: Problem,
     arg: str | None = None,
     solvers: List[str] | None = None,
@@ -25,14 +30,23 @@ def solve(
     timeout: float | None = None,
     opt_flags: List[str] = [],
 ) -> str | None:
+    tmp: Path | None = None
     try:
+        tmp = Path(tempfile.mkdtemp())
+        file: Path | None = None
+        if format == "tgf":
+            file = graph.save_tgf("tmp_graph", tmp)
+        elif format == "apx":
+            file = graph.save_apx("tmp_graph", tmp)
+        else:
+            raise ValueError(f"Unknown format: {format}")
         result = subprocess.run(
             [
                 get_exe(),
                 "-p",
                 str(problem),
                 "-f",
-                input,
+                file,
                 "-fo",
                 format,
                 *([] if arg is None else ["-a", arg]),
@@ -48,3 +62,6 @@ def solve(
         return result.stdout
     except subprocess.TimeoutExpired:
         return None
+    finally:
+        if tmp is not None:
+            shutil.rmtree(tmp)

@@ -1,7 +1,5 @@
 from io import TextIOWrapper
 import os
-import tempfile
-import shutil
 from typing import Callable, Tuple, List
 from utils.problem import Problem
 from utils.iccma.iccma_graph import ICCMAGraph
@@ -26,14 +24,11 @@ class Graph:
         sem: Semantics,
         timeout: float | None = None,
     ) -> List[List[str]] | None:
-        tmp = Path(tempfile.mkdtemp())
-        file = self.save_tgf("get_arg", tmp)
         problem = Problem("EE", sem)
-        result = solve(file, problem, timeout=timeout)
+        result = solve(self, problem, timeout=timeout)
         if result is None:
             return None
         extensions = parse_extensions(result)
-        shutil.rmtree(tmp)
         return extensions
 
     def save(

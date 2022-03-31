@@ -1,7 +1,6 @@
 from statistics import mean
-from typing import Callable, Dict, List
+from typing import Dict, List
 from utils.graph import Graph
-from utils.iccma.iccma_graph import ICCMAGraph
 from utils.benchmark.benchmark import benchmark_solve
 from utils.benchmark.randomized_executor import RandomizedExecutor, Job
 from utils.benchmark.timeouts import Timeouts
@@ -12,81 +11,17 @@ from itertools import product
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt  # type: ignore
-import networkx as nx
-import time
 
-def benchGraph(
-    graphGenerator : Callable,
-    #graphNumber : int,
-    numberOfProba : int, 
-    nodeNumber : int,
-    solvers : List[str],
-    semantics : List[Semantics],
-    tasks: List[Task],
-    timeout: float,
-    #export: Export = Export(Path("results"), ""),
-):
-    """
-    Generates a benchmark of graph created from graphGenerator
-    """
-    probabilityList=np.linspace(0,1,numberOfProba)
-    #same
-    stats: Dict[str, float] = {}
-    problems: List[Problem] = [
-        Problem(task, sem)
-        for task, sem in product(tasks, semantics)
-    ]
-    timeouts = Timeouts(timeout)
-    timeList={i:[] for i in solvers}
-    for problem, proba in product(problems,probabilityList):
-        i=0
-        param1=proba
-        if(graphGenerator.__name__=="barabasi_albert_graph"):
-            param1=int(nodeNumber*proba)
-            if(param1==0):
-                param1=1
-            elif(param1==nodeNumber):
-                param1-=1
-        graph = Graph.from_networkx(nx.Graph(graphGenerator(nodeNumber,param1)))
-        graphInput="../graph/networkxGraph/"+str(nodeNumber)+"-"+str(i)
-        graph.save_tgf(graphInput)
-        get_args = GetArgs(graph, problem)
-        for solver in solvers:
-            for arg in get_args.get():
 
-                    start=time.time()
-                    benchmark_solve(
-                    input=Path("./graph/"+graphInput+".tgf"),
-                    problem=problem,
-                    solvers=[solver],
-                    arg=arg,
-                    timeout=timeout,
-                    )
-                    end=time.time()
-                    timeList[solver].append(end-start)
-        i+=1
-    save_graph2(probabilityList,timeList,solvers)
-    #save_graph(iccma_graphs, solvers, stats, problems, timeouts, export)
-
-def save_graph2(probabilityList,timeList,solvers):
-    fig, ax = plt.subplots()
-    for solver in solvers:
-        ax.plot(
-            probabilityList,
-            timeList[solver],
-            label=solver
-        )
-    ax.set_title("probability")
-    ax.set_ylabel("Time (s)")
-    ax.legend()
-    plt.show()
 def bench(
-    iccma_graphs: List[ICCMAGraph],
+    graphs: List[Graph],
     solvers: List[str],
     semantics: List[Semantics],
     tasks: List[Task],
     timeout: float,
-    export: Export = Export(Path("results"), ""),
+    name: str = "my_graph",
+    export: Export = Export(Path("results")),
+    repetitions: int = 1,
 ):
     """
     Generates a benchmark graph for the given graphs, solvers and semantics.
@@ -116,15 +51,14 @@ def bench(
         for task, sem in product(tasks, semantics)
     ]
     timeouts = Timeouts(timeout)
-    executor = RandomizedExecutor[float]()
-    for problem, iccma_graph in product(problems, iccma_graphs):
-        graph = Graph.from_iccma_graph(iccma_graph)
+    executor = RandomizedExecutor[float](repetitions)
+    for problem, graph in product(problems, graphs):
         get_args = GetArgs(graph, problem)
         for solver in solvers:
             for arg in get_args.get():
                 job = Job[float](
                     benchmark_solve,
-                    input=iccma_graph.get_input(),
+                    graph=graph,
                     problem=problem,
                     solvers=[solver],
                     arg=arg,
@@ -137,11 +71,11 @@ def bench(
         for secs in results:
             timeouts.new_result(solver, secs)
         stats[f"{solver}{problem}"] = mean(results)
-    save_graph(iccma_graphs, solvers, stats, problems, timeouts, export)
+    save_graph(name, solvers, stats, problems, timeouts, export)
 
 
 def save_graph(
-    iccma_graphs: List[ICCMAGraph],
+    name: str,
     solvers: List[str],
     stats: Dict[str, float],
     problems: List[Problem],
@@ -164,7 +98,7 @@ def save_graph(
             width,
             label=solver,
         )
-    ax.set_title(get_title(iccma_graphs))
+    ax.set_title(name)
     ax.set_ylabel("Time (s)")
     ax.set_xticks(x, labels)
     fig.text(
@@ -178,14 +112,9 @@ def save_graph(
     )
     ax.legend()
     plt.savefig(
-        f"{export.get_file_name(ax.get_title())}.png",
+        f"{export.get_file_name(name)}.png",
         facecolor="white",
         transparent=False,
         bbox_inches="tight",
     )
     plt.close()
-
-
-def get_title(iccma_graphs: List["ICCMAGraph"]) -> str:
-    categories = [f"{g.get_type()}-{g.get_size()}" for g in iccma_graphs]
-    return ", ".join([*{*categories}])

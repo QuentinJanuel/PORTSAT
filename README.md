@@ -32,6 +32,7 @@ Example:
 cargo run -- -p DC-CO -s manysat,dpll -f graph.tgf -fo tgf -a a
 ```
 **NOTE**: You cannot set the solvers when the problem involves the grounded extension.
+
 **NOTE2**: The `--pr-mss` flag will make the solver use the MSS algorithms for the preferred semantics. Otherwise it will enumerate all complete extensions and filter the ones that are preferred.
 
 ## Prerequisite

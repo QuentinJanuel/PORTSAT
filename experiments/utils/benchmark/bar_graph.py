@@ -64,13 +64,14 @@ def bench(
                     arg=arg,
                     timeout=timeout,
                 )
-                executor.add(f"{solver}{problem}", job)
+                executor.add(f"{solver};{problem}", job)
     executor.exec_all()
     for solver, problem in product(solvers, problems):
-        results = executor.get_results(f"{solver}{problem}")
+        results = executor.get_results(f"{solver};{problem}")
         for secs in results:
             timeouts.new_result(solver, secs)
-        stats[f"{solver}{problem}"] = mean(results)
+        stats[f"{solver};{problem}"] = mean(results)
+    executor.get_df().to_csv(f"{export.get_file_name(name)}.csv")
     save_graph(name, solvers, stats, problems, timeouts, export)
 
 
@@ -89,7 +90,7 @@ def save_graph(
     fig, ax = plt.subplots()
     for i, solver in enumerate(solvers):
         solver_means = [
-            stats[f"{solver}{p}"]
+            stats[f"{solver};{p}"]
             for p in labels
         ]
         ax.bar(

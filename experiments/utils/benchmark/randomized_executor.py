@@ -1,7 +1,7 @@
 from typing import Any, Callable, List, Tuple, Generic, TypeVar
 from math import floor
 from utils.reprandom import rr
-
+import pandas as pd
 T = TypeVar("T")
 
 
@@ -45,7 +45,9 @@ class RandomizedExecutor(Generic[T]):
         for key, job in self._jobs:
             result = job.run()
             self._results.append((key, result))
-            self._results_dict[key].append(result)
+            l=key.split(";")[1:]
+            l.append(result)
+            self._results_dict[key].append(l)
             cur_progress += 1
             percent = cur_progress / max_progress * 100
             if verbose:
@@ -60,7 +62,5 @@ class RandomizedExecutor(Generic[T]):
                 results.append(result)
         return results
 
-    def get_df(self) -> Any:
-        # import pandas as pd
-        # return pd.DataFrame(self._resultsDict)
-        return None
+    def get_df(self) -> pd.DataFrame:
+        return pd.DataFrame(self._results_dict)

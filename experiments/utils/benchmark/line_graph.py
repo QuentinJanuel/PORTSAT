@@ -1,5 +1,6 @@
 from statistics import mean
 from typing import Callable, List, Sequence
+from utils.csv import CSV
 from utils.graph import Graph
 from utils.benchmark.benchmark import benchmark_solve
 from utils.benchmark.randomized_executor import RandomizedExecutor, Job
@@ -44,11 +45,15 @@ def bench(
                 )
                 executor.add(f"{param}{solver}", job)
     executor.exec_all()
+    csv = CSV()
+    csv.template("solver", "param", "time")
     for param, solver in product(inputs, solvers):
         results = executor.get_results(f"{param}{solver}")
         for secs in results:
             timeouts.new_result(solver, secs)
+            csv.add_row(solver, param, secs)
         time_lists[solver][param] = mean(results)
+    csv.save(name, export)
     save_graph(
         name,
         x_label,
@@ -82,9 +87,24 @@ def save_graph(
 
 
 def frange(start: float, stop: float, step: float) -> Sequence[float]:
+    decs = max(
+        get_num_decimals(start),
+        get_num_decimals(stop),
+        get_num_decimals(step),
+    )
     seq = []
     i = start
     while i < stop:
-        seq.append(i)
+        n = round(i, decs)
+        if n == round(stop, decs):
+            break
+        seq.append(n)
         i += step
     return seq
+
+
+def get_num_decimals(num: float) -> int:
+    parts = str(num).split(".")
+    if len(parts) == 1:
+        return 0
+    return len(parts[1].rstrip("0"))

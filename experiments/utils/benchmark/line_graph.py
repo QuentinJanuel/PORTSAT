@@ -8,6 +8,7 @@ from utils.benchmark.get_args import GetArgs
 from utils.benchmark.timeouts import Timeouts
 from utils.benchmark.export import Export
 from utils.problem import Problem
+from utils.progress import Progress
 from itertools import product
 from pathlib import Path
 import matplotlib.pyplot as plt  # type: ignore
@@ -19,19 +20,24 @@ def bench(
     graph_generator: Callable[[float], Graph],
     solvers: List[str],
     problem: Problem,
-    timeout: float,
-    name: str = "my_graph",
-    export: Export = Export(Path("results")),
+    name: str,
+    timeout: float = 10 * 60,  # 10 minutes
+    export: Export | None = None,
     repetitions: int = 1,
 ):
+    if export is None:
+        export = Export(Path("results"))
+    export.add_suffix(str(problem))
     time_lists: dict[str, dict[float, float]] = {
         solver: {}
         for solver in solvers
     }
     timeouts = Timeouts(timeout)
     executor = RandomizedExecutor[float]()
-    for param, _ in product(inputs, range(repetitions)):
+    progress = Progress("Generation", len(inputs) * repetitions)
+    for gen_cur, (param, _) in enumerate(product(inputs, range(repetitions))):
         graph = graph_generator(param)
+        progress.log(gen_cur + 1)
         get_args = GetArgs(graph, problem)
         for solver in solvers:
             for arg in get_args.get():
@@ -44,6 +50,7 @@ def bench(
                     timeout=timeout,
                 )
                 executor.add(f"{param}{solver}", job)
+    progress.end()
     executor.exec_all()
     csv = CSV()
     csv.template("solver", "param", "time")

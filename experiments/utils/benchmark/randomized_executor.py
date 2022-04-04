@@ -1,6 +1,6 @@
 from typing import Any, Callable, List, Tuple, Generic, TypeVar
-from math import floor
 from utils.reprandom import rr
+from utils.progress import Progress
 
 T = TypeVar("T")
 
@@ -38,18 +38,15 @@ class RandomizedExecutor(Generic[T]):
                 "Cannot exec_all because",
                 "this executor has already been ran",
             ]))
-        cur_progress = 0
-        max_progress = len(self._jobs)
         rr.shuffle(self._jobs)
-        for key, job in self._jobs:
+        progress = Progress("Execution", len(self._jobs))
+        for cur_prog, (key, job) in enumerate(self._jobs):
             result = job.run()
             self._results.append((key, result))
-            cur_progress += 1
-            percent = cur_progress / max_progress * 100
             if verbose:
-                print(f"\r{floor(percent)}%" + 10 * " ", end="")
+                progress.log(cur_prog + 1)
         if verbose:
-            print()
+            progress.end()
         self._has_run = True
 
     def get_results(self, key: str) -> List[T]:

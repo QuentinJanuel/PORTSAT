@@ -1,6 +1,6 @@
 from io import TextIOWrapper
 import os
-from typing import Callable, Tuple, List
+from typing import Callable, Tuple, List, Any
 from utils.problem import Problem
 from utils.iccma.iccma_graph import ICCMAGraph
 from utils.problem import Semantics
@@ -103,3 +103,8 @@ class Graph:
             [n for n in nx_graph.nodes],
             [e for e in nx_graph.edges],
         )
+
+    @staticmethod
+    def from_nx_gen(nx_gen: Any) -> "Graph":
+        nx_graph = nx.Graph(nx_gen)
+        return Graph.from_networkx(nx_graph)

@@ -19,9 +19,9 @@ def bench(
     solvers: List[str],
     semantics: List[Semantics],
     tasks: List[Task],
-    timeout: float,
     name: str = "my_graph",
-    export: Export = Export(Path("results")),
+    timeout: float = 10 * 60,  # 10 minutse
+    export: Export | None = None,
     repetitions: int = 1,
 ):
     """
@@ -46,6 +46,8 @@ def bench(
     ...     timeout=10 * 60,
     ... )
     """
+    if export is None:
+        export = Export(Path("results"))
     stats: Dict[str, float] = {}
     problems: List[Problem] = [
         Problem(task, sem)

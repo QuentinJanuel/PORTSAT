@@ -1,5 +1,5 @@
 from statistics import mean
-from typing import Callable, List, Sequence
+from typing import Callable, List, Sequence, Tuple
 from utils.csv import CSV
 from utils.graph import Graph
 from utils.benchmark.benchmark import benchmark_solve
@@ -33,7 +33,7 @@ def bench(
         for solver in solvers
     }
     timeouts = Timeouts(timeout)
-    executor = RandomizedExecutor[float]()
+    executor = RandomizedExecutor[Tuple[float, str | None]]()
     progress = Progress("Generation", len(inputs) * repetitions)
     for gen_cur, (param, _) in enumerate(product(inputs, range(repetitions))):
         graph = graph_generator(param)
@@ -41,25 +41,40 @@ def bench(
         get_args = GetArgs(graph, problem)
         for solver in solvers:
             for arg in get_args.get():
-                job = Job[float](
-                    benchmark_solve,
-                    graph=graph,
-                    problem=problem,
-                    solvers=[solver],
-                    arg=arg,
-                    timeout=timeout,
+                def job_fun(
+                    graph: Graph,
+                    problem: Problem,
+                    solver: str,
+                    arg: str | None,
+                    timeout: float,
+                ) -> Tuple[float, str | None]:
+                    secs = benchmark_solve(
+                        graph=graph,
+                        problem=problem,
+                        solvers=[solver],
+                        arg=arg,
+                        timeout=timeout,
+                    )
+                    return secs, arg
+                job = Job[Tuple[float, str | None]](
+                    job_fun,
+                    graph,
+                    problem,
+                    solver,
+                    arg,
+                    timeout,
                 )
                 executor.add(f"{param}{solver}", job)
     progress.end()
     executor.exec_all()
     csv = CSV()
-    csv.template("solver", "param", "time")
+    csv.template("solver", "param", "arg", "time")
     for param, solver in product(inputs, solvers):
         results = executor.get_results(f"{param}{solver}")
-        for secs in results:
+        for secs, arg in results:
             timeouts.new_result(solver, secs)
-            csv.add_row(solver, param, secs)
-        time_lists[solver][param] = mean(results)
+            csv.add_row(solver, param, arg, secs)
+        time_lists[solver][param] = mean([secs for secs, _ in results])
     csv.save(name, export)
     save_graph(
         name,

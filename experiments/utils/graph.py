@@ -33,17 +33,15 @@ class Graph:
 
     def save(
         self,
-        file_name: str,
-        path: Path = Path("graph"),
+        file: Path,
     ) -> Tuple[Path, Path]:
-        a = self.save_apx(file_name, path)
-        b = self.save_tgf(file_name, path)
+        a = self.save_apx(file)
+        b = self.save_tgf(file)
         return a, b
 
     def save_tgf(
         self,
-        file_name: str,
-        path: Path = Path("graph"),
+        file: Path,
     ) -> Path:
         def writer(f: TextIOWrapper):
             for v in self.vertices:
@@ -51,29 +49,27 @@ class Graph:
             f.write("#\n")
             for v1, v2 in self.edges:
                 f.write(f"{v1} {v2}\n")
-        return self._write(f"{file_name}.tgf", writer, path)
+        return self._write(file, writer)
 
     def save_apx(
         self,
-        file_name: str,
-        path: Path = Path("graph"),
+        file: Path,
     ) -> Path:
         def writer(f: TextIOWrapper):
             for v in self.vertices:
                 f.write(f"arg({v}).\n")
             for v1, v2 in self.edges:
                 f.write(f"att({v1},{v2}).\n")
-        return self._write(f"{file_name}.apx", writer, path)
+        return self._write(file, writer)
 
     def _write(
         self,
-        file_name: str,
+        file: Path,
         writer: Callable[[TextIOWrapper], None],
-        path: Path,
     ) -> Path:
+        path = file.parent
         if not os.path.exists(path):
             os.makedirs(path)
-        file = path.joinpath(file_name)
         with open(file, "w") as f:
             writer(f)
         return file

@@ -35,9 +35,9 @@ def solve(
         tmp = Path(tempfile.mkdtemp())
         file: Path | None = None
         if format == "tgf":
-            file = graph.save_tgf("tmp_graph", tmp)
+            file = graph.save_tgf(tmp.joinpath("tmp_graph.tgf"))
         elif format == "apx":
-            file = graph.save_apx("tmp_graph", tmp)
+            file = graph.save_apx(tmp.joinpath("tmp_graph.apx"))
         else:
             raise ValueError(f"Unknown format: {format}")
         result = subprocess.run(

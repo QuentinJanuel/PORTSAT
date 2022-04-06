@@ -18,10 +18,12 @@ class Export:
         if len(suffix) > 0:
             self._suffixes.append(suffix)
 
-    def get_file_name(self, name: str):
+    def get_file_name(self, name: str, ext: str = ""):
         full_name = "_".join([
             *self._prefixes,
             name,
             *self._suffixes,
         ])
+        if len(ext) > 0:
+            full_name += f".{ext}"
         return self._path.joinpath(full_name)

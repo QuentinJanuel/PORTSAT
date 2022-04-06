@@ -1,5 +1,5 @@
 from statistics import mean
-from typing import Callable, List, Sequence, Tuple
+from typing import List, Tuple, Callable
 from utils.csv import CSV
 from utils.graph import Graph
 from utils.benchmark.benchmark import benchmark_solve
@@ -7,6 +7,7 @@ from utils.benchmark.randomized_executor import RandomizedExecutor, Job
 from utils.benchmark.get_args import GetArgs
 from utils.benchmark.timeouts import Timeouts
 from utils.benchmark.export import Export
+from utils.benchmark.inputs import Inputs
 from utils.problem import Problem
 from utils.progress import Progress
 from itertools import product
@@ -16,7 +17,7 @@ import matplotlib.pyplot as plt  # type: ignore
 
 def bench(
     x_label: str,
-    inputs: Sequence[float],
+    inputs: Inputs,
     graph_generator: Callable[[float], Graph],
     solvers: List[str],
     problem: Problem,
@@ -32,10 +33,14 @@ def bench(
         solver: {}
         for solver in solvers
     }
+    inputs_seq = inputs.get(problem)
     timeouts = Timeouts(timeout)
     executor = RandomizedExecutor[Tuple[float, str | None]]()
-    progress = Progress("Generation", len(inputs) * repetitions)
-    for gen_cur, (param, _) in enumerate(product(inputs, range(repetitions))):
+    progress = Progress("Generation", len(inputs_seq) * repetitions)
+    for gen_cur, (param, _) in enumerate(product(
+        inputs_seq,
+        range(repetitions),
+    )):
         graph = graph_generator(param)
         progress.log(gen_cur + 1)
         get_args = GetArgs(graph, problem)
@@ -69,7 +74,7 @@ def bench(
     executor.exec_all()
     csv = CSV()
     csv.template("solver", "param", "arg", "time")
-    for param, solver in product(inputs, solvers):
+    for param, solver in product(inputs_seq, solvers):
         results = executor.get_results(f"{param}{solver}")
         for secs, arg in results:
             timeouts.new_result(solver, secs)
@@ -106,27 +111,3 @@ def save_graph(
         bbox_inches="tight",
     )
     plt.close()
-
-
-def frange(start: float, stop: float, step: float) -> Sequence[float]:
-    decs = max(
-        get_num_decimals(start),
-        get_num_decimals(stop),
-        get_num_decimals(step),
-    )
-    seq = []
-    i = start
-    while i < stop:
-        n = round(i, decs)
-        if n == round(stop, decs):
-            break
-        seq.append(n)
-        i += step
-    return seq
-
-
-def get_num_decimals(num: float) -> int:
-    parts = str(num).split(".")
-    if len(parts) == 1:
-        return 0
-    return len(parts[1].rstrip("0"))

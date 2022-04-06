@@ -21,11 +21,18 @@ graphs: dict[str, GraphT] = {
         "inputs": frange(1000, 10000, 100),
         "gen": lambda n: Graph.from_nx_gen(nx.cycle_graph(n)),
     },
-    "barbell": {
+    "barbell_path_100": {
         "x_label": "#nodes per complete graph",
         "inputs": frange(1, 1000, 10),
         "gen": lambda m1: Graph.from_nx_gen(
             nx.barbell_graph(m1, 100)
+        ),
+    },
+    "barbell_size_100": {
+        "x_label": "path length",
+        "inputs": frange(1, 100, 10),
+        "gen": lambda m2: Graph.from_nx_gen(
+            nx.barbell_graph(100, m2)
         ),
     },
     "binomial_tree": {

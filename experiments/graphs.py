@@ -1,0 +1,136 @@
+from utils.graph import Graph
+import networkx as nx
+from utils.benchmark.line_graph import frange
+from typing import TypedDict, Sequence, Callable
+
+
+class GraphT(TypedDict):
+    x_label: str
+    inputs: Sequence[float]
+    gen: Callable[[float], Graph]
+
+
+graphs: dict[str, GraphT] = {
+    "complete": {
+        "x_label": "#nodes",
+        "inputs": frange(1, 1000, 10),
+        "gen": lambda n: Graph.from_nx_gen(nx.complete_graph(n)),
+    },
+    "cycle": {
+        "x_label": "#nodes",
+        "inputs": frange(1000, 10000, 100),
+        "gen": lambda n: Graph.from_nx_gen(nx.cycle_graph(n)),
+    },
+    "barbell": {
+        "x_label": "#nodes per complete graph",
+        "inputs": frange(1, 1000, 10),
+        "gen": lambda m1: Graph.from_nx_gen(
+            nx.barbell_graph(m1, 100)
+        ),
+    },
+    "binomial_tree": {
+        "x_label": "order",
+        "inputs": frange(1, 100, 10),
+        "gen": lambda n: Graph.from_nx_gen(nx.binomial_tree(n)),
+    },
+    "circular_ladder": {
+        "x_label": "length",
+        "inputs": frange(1, 100, 10),
+        "gen": lambda n: Graph.from_nx_gen(
+            nx.circular_ladder_graph(n)
+        ),
+    },
+    "dorogovtsev_goltsev_mendes": {
+        "x_label": "generation",
+        "inputs": frange(1, 100, 10),
+        "gen": lambda n: Graph.from_nx_gen(
+            nx.dorogovtsev_goltsev_mendes_graph(n)
+        ),
+    },
+    "ladder": {
+        "x_label": "length",
+        "inputs": frange(1, 100, 10),
+        "gen": lambda n: Graph.from_nx_gen(nx.ladder_graph(n)),
+    },
+    "path": {
+        "x_label": "length",
+        "inputs": frange(1, 100, 10),
+        "gen": lambda n: Graph.from_nx_gen(nx.path_graph(n)),
+    },
+    "star": {
+        "x_label": "length",
+        "inputs": frange(1, 100, 10),
+        "gen": lambda n: Graph.from_nx_gen(nx.star_graph(n)),
+    },
+    "wheel": {
+        "x_label": "cycle length",
+        "inputs": frange(1, 100, 10),
+        "gen": lambda n: Graph.from_nx_gen(nx.wheel_graph(n)),
+    },
+    "margulis_gabber_galil": {
+        "x_label": "sqrt(#nodes)",
+        "inputs": frange(1, 100, 10),
+        "gen": lambda n: Graph.from_nx_gen(
+            nx.margulis_gabber_galil_graph(n)
+        ),
+    },
+    "hypercube": {
+        "x_label": "dimension",
+        "inputs": frange(1, 100, 10),
+        "gen": lambda n: Graph.from_nx_gen(nx.hypercube_graph(n)),
+    },
+    "gn": {
+        "x_label": "#nodes",
+        "inputs": frange(1, 100, 10),
+        "gen": lambda n: Graph.from_nx_gen(nx.gn_graph(n)),
+    },
+    "gnc": {
+        "x_label": "#nodes",
+        "inputs": frange(1, 100, 10),
+        "gen": lambda n: Graph.from_nx_gen(nx.gnc_graph(n)),
+    },
+    "scale_free": {
+        "x_label": "#nodes",
+        "inputs": frange(1, 100, 10),
+        "gen": lambda n: Graph.from_nx_gen(nx.scale_free_graph(n)),
+    },
+    "navigable_small_world": {
+        "x_label": "sqrt(#nodes)",
+        "inputs": frange(1, 100, 10),
+        "gen": lambda n: Graph.from_nx_gen(
+            nx.navigable_small_world_graph(n)
+        ),
+    },
+    "waxman": {
+        "x_label": "#nodes",
+        "inputs": frange(1, 100, 10),
+        "gen": lambda n: Graph.from_nx_gen(nx.waxman_graph(n)),
+    },
+    "random_internet": {
+        "x_label": "#nodes",
+        "inputs": frange(1000, 10000, 100),
+        "gen": lambda n: Graph.from_nx_gen(
+            nx.random_internet_as_graph(n)
+        ),
+    },
+    "random_tree": {
+        "x_label": "#nodes",
+        "inputs": frange(1000, 10000, 100),
+        "gen": lambda n: Graph.from_nx_gen(nx.random_tree(n)),
+    },
+    "mycielski": {
+        "x_label": "order",
+        "inputs": frange(1, 1000, 10),
+        "gen": lambda n: Graph.from_nx_gen(nx.mycielski_graph(n)),
+    },
+    "random_cograph": {
+        "x_label": "order",
+        "inputs": frange(1, 1000, 10),
+        "gen": lambda n: Graph.from_nx_gen(nx.random_cograph(n)),
+    },
+    "sudoku": {
+        "x_label": "order",
+        "inputs": frange(1, 1000, 10),
+        "gen": lambda n: Graph.from_nx_gen(nx.sudoku_graph(int(n))),
+    },
+}

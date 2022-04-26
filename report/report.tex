@@ -29,6 +29,11 @@
 \begin{document}
 
 \maketitle
+
+\newpage
+
+\tableofcontents
+
 \newpage
 
 \section{Introduction}
@@ -36,7 +41,7 @@ Argumentation frameworks are widely used in artificial intelligence since they c
 In this paper, we will describe how we made our argumentation solver using SAT solvers.
 It has already been shown that the choice of the SAT solver is important (citation needed), so we will also compare SAT solvers for several argumentation framework instances. The goal is to see if we can apply an heuristic to decide which solver to use in which scenario.
 
-\section{Definitions}
+\section{Background notions}
 
 \subsection{Argumentation framework}
 An argumentation framework is an oriented graph where the nodes represent arguments and the edges represent attacks.
@@ -55,7 +60,7 @@ For each semantics, there are four different tasks we are interested in: \\
 An argument is said to be credulously accepted if it is accepted in at least one of the extensions, and skeptically accepted if it is accepted in all of them. \\
 That leaves us with the 16 following problems: SE-CO, SE-ST, SE-GR, SE-PR, EE-CO, EE-ST, EE-GR, EE-PR, DC-CO, DC-ST, DC-GR, DC-PR, DS-CO, DS-ST, DS-GR, DS-PR.
 
-\section{SAT}
+\section{Logical encodings for abstract argumentation}
 We can convert each semantics to a SAT instance. \\
 For instance, here is the complete semantics as a SAT instance:
 $
@@ -98,12 +103,12 @@ We can also use it to run several solvers in parallel as a portfolio. \\
 Then we made the argumentation solver itself\cite{argsolver}. It has been tested with all kinds of argumentation frameworks so we can be confident that it is likely bug free.
 
 
-\section{Protocol}
+\section{Experimental results}
 When benchmarking, we will have a time limit for each problem. If a given solver takes more than this time, we will consider it took 10 times more time. \\
 Also, each problems requires three steps: parse the argumentation framework, convert it to a SAT instance and solve it. We will only measure the latter one since the first two will not vary depending of the choice of the SAT solver.
 \dots
 
-\section{Observations}
+\section{Related works}
 
 \section{Conclusion}
 

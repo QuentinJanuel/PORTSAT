@@ -140,4 +140,28 @@ graphs: dict[str, GraphT] = {
         "inputs": Inputs(frange(1, 1000, 10)),
         "gen": lambda n: Graph.from_nx_gen(nx.sudoku_graph(int(n))),
     },
+    "turan": {
+        "x_label": "r",
+        "inputs": Inputs(frange(0, 1000, 10)),
+        "gen": lambda r: Graph.from_nx_gen(nx.turan_graph(1000, int(r))),
+    },
+    "erdos_renyi": {
+        "x_label": "p",
+        "inputs": Inputs(frange(0, 1, 0.05)),
+        "gen": lambda p: Graph.from_nx_gen(nx.erdos_renyi_graph(3000, p)),
+    },
+    "watts_strogatz": {
+        "x_label": "k",
+        "inputs": Inputs(frange(0, 1, .01)),
+        "gen": lambda p: Graph.from_nx_gen(
+            nx.watts_strogatz_graph(1000, 5, p)
+        ),
+    },
+    "windmill": {
+        "x_label": "n",
+        "inputs": Inputs(frange(2, 500, 10)),
+        "gen": lambda k: Graph.from_nx_gen(
+            nx.windmill_graph(max(2, int(1000 / k)), k)
+        ),
+    }
 }

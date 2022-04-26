@@ -41,18 +41,18 @@ def solve(
         else:
             raise ValueError(f"Unknown format: {format}")
         result = subprocess.run(
-            [
-                get_exe(),
+            " ".join([
+                str(get_exe()),
                 "-p",
                 str(problem),
                 "-f",
-                file,
+                str(file),
                 "-fo",
                 format,
                 *([] if arg is None else ["-a", str(arg)]),
                 *([] if solvers is None else ["-s", ",".join(solvers)]),
                 *opt_flags,
-            ],
+            ]),
             capture_output=True,
             text=True,
             timeout=timeout,

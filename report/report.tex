@@ -33,13 +33,20 @@
 
 \section{Introduction}
 Argumentation frameworks are widely used in artificial intelligence since they can model formalized arguments and draw conclusions from them. \\
-Formally, an argumentation framework is an oriented graph where the nodes represent the arguments and the edges represent the attacks. To decide if an argument is accepted, we can compute an extension (with regards to a semantics) of the graph, which is a subset of its nodes, and see if the argument belongs to it. \\
-In this paper, we will focus on the following semantics: \textbf{complete}, \textbf{stable}, \textbf{grounded} and \textbf{preferred} \cite{dung1995acceptability}. \\
-We will refer to them as CO, ST, GR and PR from now on.
-Except for the grounded one, finding extensions of these semantics is a hard problem (NP). That's why the \textbf{ICCMA}\cite{iccma} has been organized since 2015 to find the best algorithms. \\ \\
-We will use SAT to compute the extensions, and study the impact of the choice of the SAT solver.
+In this paper, we will describe how we made our argumentation solver using SAT solvers.
+It has already been shown that the choice of the SAT solver is important (citation needed), so we will also compare SAT solvers for several argumentation framework instances. The goal is to see if we can apply an heuristic to decide which solver to use in which scenario.
 
-\section{Tasks}
+\section{Definitions}
+
+\subsection{Argumentation framework}
+An argumentation framework is an oriented graph where the nodes represent arguments and the edges represent attacks.
+
+\subsection{Extension and semantics}
+An extension is a subset of nodes that represent the accepted arguments. It is defined depdending on a given semantics. In this paper, we will focus on the following semantics: \textbf{complete}, \textbf{stable}, \textbf{grounded} and \textbf{preferred} \cite{dung1995acceptability}. \\
+We will refer to them as CO, ST, GR and PR from now on.
+Except for GR, finding extensions of these semantics is a hard problem (NP). That's why the \textbf{ICCMA}\cite{iccma} has been organized since 2015 to find the best algorithms. \\ \\
+
+\subsection{Tasks}
 For each semantics, there are four different tasks we are interested in: \\
  - \textbf{SE}: find one extension, no matter which one \\
  - \textbf{EE}: find all the extensions \\
@@ -49,7 +56,11 @@ An argument is said to be credulously accepted if it is accepted in at least one
 That leaves us with the 16 following problems: SE-CO, SE-ST, SE-GR, SE-PR, EE-CO, EE-ST, EE-GR, EE-PR, DC-CO, DC-ST, DC-GR, DC-PR, DS-CO, DS-ST, DS-GR, DS-PR.
 
 \section{SAT}
-We can convert each semantics to a SAT instance.
+We can convert each semantics to a SAT instance. \\
+For instance, here is the complete semantics as a SAT instance:
+$
+insert here
+$
 Finding one extension is then equivalent to finding a model of the SAT instance, and finding all the extensions is equivalent to enumerating all its models. \\
 For the DC task, we add a clause forcing the argument to be accepted, and then check if the model is satisfiable. \\
 For the DS task, we add a clause forcing the argument to be rejected, and then check if the model is unsatisfiable. \\ \\
@@ -66,7 +77,7 @@ We have the following CNF: \\
 &\bigwedge_{a_i\in A}\left(a_i \lor \bigvee_{a_j\in A, (a_j, a_i)\in R}\lnot P_{a_j}\right), \\
 &\bigwedge_{a_i\in A}\bigwedge_{a_j\in A, (a_j, a_i)\in R}\left(\lnot a_i \lor P_{a_j}\right), \\
 &\bigwedge_{a_i\in A}\left(\lnot P_{a_i} \lor \bigvee_{a_j\in A, (a_j, a_i)\in R}a_j\right), \\
-&\bigwedge_{a_i\in A}\bigwedges_{a_j\in A, (a_j, a_i)\in R}\left(P_{a_i} \lor \lnot a_j\right)
+&\bigwedge_{a_i\in A}\bigwedge_{a_j\in A, (a_j, a_i)\in R}\left(P_{a_i} \lor \lnot a_j\right)
 \end{split}
 \end{align} \\
 where $A$ is the set of arguments and $R$ the set of attacks\cite{lagniez2015coquiaas}. \\
@@ -79,18 +90,20 @@ The first one is to compute all the complete extensions and \\
  - for DS, same as EE but then check if the argument belongs to all preferred extensions \\
 The second one is to find one complete extension and to try to add arguments to it until not possible.
 
-\section{Building the solver}
-The solver had to be fast so we chose Rust as the language. We first made a library\cite{portfoliolib} to use famous SAT solvers we will then compare. It allows for minisat, manysat and glucose, and also for portfolio that combines these solvers in parallel. Then we made the argumentation solver itself\cite{argsolver}. It has been tested with all kinds of argumentation frameworks so we can be confident that it is likely bug free.
+\section{Implementation}
+
+The decided to implement the solver in Rust for two main reasons: it is fast and reliable. \\
+We first made a library\cite{portfoliolib} to use famous SAT solvers we will then compare. It allows for minisat, manysat, glucose and maplesat. \\
+We can also use it to run several solvers in parallel as a portfolio. \\
+Then we made the argumentation solver itself\cite{argsolver}. It has been tested with all kinds of argumentation frameworks so we can be confident that it is likely bug free.
+
 
 \section{Protocol}
 When benchmarking, we will have a time limit for each problem. If a given solver takes more than this time, we will consider it took 10 times more time. \\
 Also, each problems requires three steps: parse the argumentation framework, convert it to a SAT instance and solve it. We will only measure the latter one since the first two will not vary depending of the choice of the SAT solver.
+\dots
 
-\section{First observations}
-
-\section{Applying heuristics}
-
-\section{Second observations}
+\section{Observations}
 
 \section{Conclusion}
 

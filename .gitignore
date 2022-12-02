@@ -1,4 +1,6 @@
 target
+portsat
+*.paf
 
 report/report.log
 report/report.aux

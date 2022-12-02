@@ -122,6 +122,36 @@ impl AF {
         }
         Self { arguments }
     }
+    pub fn from_paf(tgf: &str) -> Self {
+        let mut lines = tgf.lines();
+        let n = lines.next().unwrap().split(" ").nth(2).unwrap().parse::<usize>().unwrap();
+        let mut arguments = vec![];
+        for i in 1..=n {
+            let name = format!("{i}");
+            let arg = Argument {
+                name,
+                attackers: vec![],
+            };
+            arguments.push(arg);
+        }
+        for line in lines {
+            if line.is_empty() {
+                continue;
+            }
+            if line.starts_with("#") {
+                continue;
+            }
+            let mut iter = line.split(" ");
+            let (a, b) = (
+                iter.next().unwrap(),
+                iter.next().unwrap(),
+            );
+            let a_ind = a.parse::<usize>().unwrap() - 1;
+            let b_ind = b.parse::<usize>().unwrap() - 1;
+            arguments[b_ind].attackers.push(a_ind);
+        }
+        Self { arguments }
+    }
     pub fn phi_co(&self) -> CNF {
         let mut cnf = CNF::new();
         let len = self.arguments.len();

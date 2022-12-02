@@ -53,7 +53,7 @@ where
                 .iter()
                 .map(|m| format!("{}", Extension::new(af, m)))
                 .collect::<Vec<_>>()
-                .join(","),
+                .join(", "),
             )
         }
         Task::Credulous(arg) => {
@@ -65,8 +65,10 @@ where
                 BenchmarkTask::SATSolving,
                 sat_solver.solve(&cnf),
             );
-            if let Some(_) = model {
+            if let Some(model) = model {
                 println!("YES");
+                let extension = Extension::new(af, &model);
+                println!("{}", extension);
             } else {
                 println!("NO");
             }
@@ -80,8 +82,10 @@ where
                 BenchmarkTask::SATSolving,
                 sat_solver.solve(&cnf),
             );
-            if let Some(_) = model {
+            if let Some(model) = model {
                 println!("NO");
+                let extension = Extension::new(af, &model);
+                println!("{}", extension);
             } else {
                 println!("YES");
             }

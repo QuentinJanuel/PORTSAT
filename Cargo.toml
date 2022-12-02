@@ -1,11 +1,11 @@
 [package]
-name = "ter"
-version = "0.1.0"
+name = "portsat"
+version = "1.0.0"
 edition = "2018"
 authors = [
-    "Christophe Yang",
-    "Quentin Januel",
-    "Sylvain Declercq",
+    "Quentin Januel (quentinjanuel.pro@gmail.com)",
+    "Sylvain Declercq (syl.dec@live.fr)",
+    "Christophe Yang (christopheyang@live.fr)",
 ]
 license = "MIT"
 

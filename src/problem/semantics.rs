@@ -3,7 +3,7 @@ use std::{
     convert::TryFrom,
 };
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum Semantics {
     Complete,
     Grounded,

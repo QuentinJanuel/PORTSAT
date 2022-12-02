@@ -46,20 +46,41 @@ pub fn show_available() {
     println!("[{}]", s);
 }
 
-pub fn get_from_arg(arg: Option<&str>) -> Option<Box<dyn Solver>> {
-    arg.map(|solver_names| {
-        let mut solvers: Vec<Arc<dyn Solver>> = vec![];
-        let all_solvers = get_all();
-        for solver_name in solver_names.split(',') {
-            if let Some(solver_gen) = all_solvers.get(solver_name) {
-                solvers.push(solver_gen().into());
-            } else {
-                panic!("Unknown solver: {}", solver_name);
-            }
-        }
-        if solvers.len() < 1 {
-            panic!("No solver specified");
-        }
-        Box::new(Portfolio::from(solvers)) as Box<dyn Solver>
-    })
+pub fn get_from_arg(/*arg: Option<&str>*/is_gr: bool) -> Option<Box<dyn Solver>> {
+    // arg.map(|solver_names| {
+    //     let mut solvers: Vec<Arc<dyn Solver>> = vec![];
+    //     let all_solvers = get_all();
+    //     for solver_name in solver_names.split(',') {
+    //         if let Some(solver_gen) = all_solvers.get(solver_name) {
+    //             solvers.push(solver_gen().into());
+    //         } else {
+    //             panic!("Unknown solver: {}", solver_name);
+    //         }
+    //     }
+    //     if solvers.len() < 1 {
+    //         panic!("No solver specified");
+    //     }
+    //     Box::new(Portfolio::from(solvers)) as Box<dyn Solver>
+    // })
+    if is_gr {
+        None
+    } else {
+        Some(Box::new(Portfolio::from(vec![
+            Arc::new(Manysat::new()),
+            Arc::new(Minisat::new()),
+            Arc::new(Maplesat::new()),
+            Arc::new(Glucose::new()),
+            Arc::new({
+                let mut s = Glucose::new();
+                s.enable_preprocessing();
+                s
+            }),
+            // Arc::new({
+            //     let mut s = Glucose::new();
+            //     s.enable_syrup();
+            //     s
+            // }),
+            // Arc::new(DPLL::new()),
+        ])))
+    }
 }

@@ -31,11 +31,20 @@ pub fn solve(
     match task {
         Task::FindOne => println!("{}", extension),
         Task::Enumerate => println!("[{}]", extension),
-        Task::Credulous(arg) | Task::Skeptical(arg) => {
+        Task::Credulous(arg) => {
+            if extension.contains(arg) {
+                println!("YES");
+                println!("{}", extension);
+            } else {
+                println!("NO");
+            }
+        },
+        Task::Skeptical(arg) => {
             if extension.contains(arg) {
                 println!("YES");
             } else {
                 println!("NO");
+                println!("{}", extension);
             }
         },
     };

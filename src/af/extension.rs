@@ -33,6 +33,6 @@ impl<'a> Extension<'a> {
 
 impl fmt::Display for Extension<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "[{}]", self.get_args().join(","))
+        write!(f, "w {}", self.get_args().join(" "))
     }
 }

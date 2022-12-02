@@ -690,6 +690,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "58893f751c9b0412871a09abd62ecd2a00298c6c83befa223ef98c52aef40cbe"
 
 [[package]]
+name = "portsat"
+version = "1.0.0"
+dependencies = [
+ "lalrpop",
+ "lalrpop-util",
+ "lazy_static",
+ "sat_portfolio",
+]
+
+[[package]]
 name = "precomputed-hash"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -948,16 +958,6 @@ dependencies = [
  "redox_syscall",
  "remove_dir_all",
  "winapi",
-]
-
-[[package]]
-name = "ter"
-version = "0.1.0"
-dependencies = [
- "lalrpop",
- "lalrpop-util",
- "lazy_static",
- "sat_portfolio",
 ]
 
 [[package]]

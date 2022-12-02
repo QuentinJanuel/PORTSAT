@@ -7,6 +7,7 @@ pub enum Format {
     TGF,
     APX,
     LooseAPX,
+    PAF,
 }
 
 impl Format {
@@ -15,6 +16,7 @@ impl Format {
             Format::TGF,
             Format::APX,
             Format::LooseAPX,
+            Format::PAF,
         ]
             .iter()
             .map(|f| f.to_string())
@@ -29,6 +31,7 @@ impl fmt::Display for Format {
             Format::TGF => write!(f, "tgf"),
             Format::APX => write!(f, "apx"),
             Format::LooseAPX => write!(f, "loose-apx"),
+            Format::PAF => write!(f, "paf"),
         }
     }
 }
@@ -40,6 +43,7 @@ impl FromStr for Format {
             "tgf" => Ok(Format::TGF),
             "apx" => Ok(Format::APX),
             "loose-apx" => Ok(Format::LooseAPX),
+            "paf" => Ok(Format::PAF),
             _ => Err(format!("Unknown format: {}", s)),
         }
     }

@@ -23,7 +23,7 @@ pub fn details() {
     let author = env!("CARGO_PKG_AUTHORS")
         .split(":")
         .collect::<Vec<_>>()
-        .join(", ");
+        .join("\n");
     println!("{} v{}\n{}", name, version, author);
 }
 

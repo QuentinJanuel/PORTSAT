@@ -16,7 +16,7 @@ pub fn solve(
     af: AF,
     problem: Problem,
     sat_solver: Option<Box<dyn Solver>>,
-    pr_mss: bool,
+    // pr_mss: bool,
 ) -> Result<(), String> {
     match &problem.semantics {
         Semantics::Complete => {
@@ -38,7 +38,7 @@ pub fn solve(
         Semantics::Grounded =>
             grounded::solve(&af, &problem.task, sat_solver)?,
         Semantics::Preferred =>
-            preferred::solve(&af, &problem.task, sat_solver, pr_mss),
+            preferred::solve(&af, &problem.task, sat_solver/*, pr_mss*/),
     }
     Ok(())
 }

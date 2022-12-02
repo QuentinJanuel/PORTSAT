@@ -1,56 +1,21 @@
-# Computational model of argumentation
+# PORTSAT
 
-You can use the solver as described in the ICCMA'15 Supplementary Notes on probo:
+## Installation
 
-## Print the name, version and authors
-```
-cargo run --
-```
+### Prerequisites
 
-## Print the supported formats
-```
-cargo run -- --formats
-```
-**NOTE:** We have an extra format `loose-apx` which allows for APX file with less assumptions (e.g. the arguments and attacks can be mixed, or there can be multiple definitions per line). If your APX graph fails to parse with the default `apx` format, give a try to `loose-apx`. However the parsing is slower.
+PORTSAT is made in Rust, so you need to install Rust first. You can find the installation instructions [here](https://www.rust-lang.org/tools/install).
 
-## Print the supported problems
-```
-cargo run -- --problems
-```
+### Compile source code
 
-## Print the available SAT solvers
-```
-cargo run -- --solvers
-```
-
-## Solve a given problem
-```
-cargo run -- -p <problem> -f <file> -fo <fileformat> [-a <additional_parameter>] [-s <solvers>] [--pr-mss]
-```
-Example:
-```
-cargo run -- -p DC-CO -s manysat,dpll -f graph.tgf -fo tgf -a a
-```
-**NOTE**: You cannot set the solvers when the problem involves the grounded extension.
-
-**NOTE2**: The `--pr-mss` flag will make the solver use the MSS algorithms for the preferred semantics. Otherwise it will enumerate all complete extensions and filter the ones that are preferred.
-
-## Prerequisite
- - [Rust](https://www.rust-lang.org/)
- - [Python](https://www.python.org/) (10.0 or higher)
-### MacOS
-Make sure to have the `libomp` library installed. If you do not, you can install it with the following command:
+You just need to run the make command in the root directory of the project.
 ```bash
-brew install libomp
+make
 ```
 
-## Compile
-The Python scripts will attempt to use the release version of the solver.
-In order to compile it, run the following command:
-```
-cargo build --release
-```
-In order to install the python dependencies, run
-```
-pip install -r requirements.txt
+## Usage
+
+If the installation was successful, you can run the program with the following command:
+```bash
+./portsat
 ```

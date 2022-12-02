@@ -11,6 +11,7 @@ use af::{
     AF,
     format::Format,
 };
+use problem::Semantics;
 use utils::{
     args::Args,
     solvers,
@@ -18,6 +19,8 @@ use utils::{
 };
 use std::{convert::TryInto, str::FromStr};
 use solver::solve;
+
+use crate::problem::Problem;
 
 fn main() -> Result<(), String> {
     let args = Args::new();
@@ -34,12 +37,13 @@ fn main() -> Result<(), String> {
         solvers::show_available();
     } else if let Some(problem) = args.get("-p") {
         let param = args.get("-a");
-        let problem = (problem, param).try_into()?;
+        let problem: Problem = (problem, param).try_into()?;
         let file = args.get("-f")
             .ok_or("The file is not specified")?;
         let format = Format::from_str(
             args.get("-fo")
-                .ok_or("The format is not specified")?
+                .unwrap_or("paf")
+                // .ok_or("The format is not specified")?
         )?;
         let file = utils::read_file(file)?;
         let af = benchmark!(
@@ -48,13 +52,15 @@ fn main() -> Result<(), String> {
                 Format::TGF => AF::from_tgf(&file),
                 Format::APX => AF::from_apx(&file),
                 Format::LooseAPX => AF::from_loose_apx(&file),
+                Format::PAF => AF::from_paf(&file),
             },
         );
+        let is_gr = problem.semantics == Semantics::Grounded;
         solve(
             af,
             problem,
-            solvers::get_from_arg(args.get("-s")),
-            args.has("--pr-mss"),
+            solvers::get_from_arg(/*args.get("-s"),*/ is_gr),
+            // args.has("--pr-mss"),
         )?;
     } else {
         utils::details();

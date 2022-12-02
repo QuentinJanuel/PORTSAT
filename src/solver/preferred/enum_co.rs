@@ -57,26 +57,28 @@ pub fn solve(
             Task::Enumerate => println!("[{}]", preferred.iter()
                 .map(|e| e.to_string())
                 .collect::<Vec<_>>()
-                .join(","),
+                .join(", "),
             ),
             Task::Credulous(arg) => {
-                if preferred
+                let extension = preferred
                     .iter()
-                    .any(|e| e.contains(arg))
-                {
+                    .find(|e| e.contains(arg));
+                if let Some(extension) = extension {
                     println!("YES");
+                    println!("{}", extension);
                 } else {
                     println!("NO");
                 }
             },
             Task::Skeptical(arg) => {
-                if preferred
+                let extension = preferred
                     .iter()
-                    .all(|e| e.contains(arg))
-                {
-                    println!("YES");
-                } else {
+                    .find(|e| !e.contains(arg));
+                if let Some(extension) = extension {
                     println!("NO");
+                    println!("{}", extension);
+                } else {
+                    println!("YES");
                 }
             },
             _ => unreachable!(),

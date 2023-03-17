@@ -13,9 +13,9 @@ pub enum Format {
 impl Format {
     pub fn show_available() {
         println!("[{}]", [
-            Format::TGF,
-            Format::APX,
-            Format::LooseAPX,
+            // Format::TGF,
+            // Format::APX,
+            // Format::LooseAPX,
             Format::PAF,
         ]
             .iter()

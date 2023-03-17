@@ -43,7 +43,7 @@ pub fn all_problems() {
     let all_tasks = vec![
         Task::Credulous(String::new()),
         Task::Skeptical(String::new()),
-        Task::Enumerate,
+        // Task::Enumerate,
         Task::FindOne,
     ];
     let all_semantics = vec![

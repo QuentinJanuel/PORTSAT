@@ -6,6 +6,10 @@ authors = [
     "Quentin Januel (quentinjanuel.pro@gmail.com)",
     "Sylvain Declercq (syl.dec@live.fr)",
     "Christophe Yang (christopheyang@live.fr)",
+    "",
+    "Under the supervision of",
+    "Jean-Guy Mailly (jean-guy.mailly@u-paris.fr)",
+    "Jérôme Delobelle (jerome.delobelle@u-paris.fr)",
 ]
 license = "MIT"
 

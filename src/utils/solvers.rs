@@ -26,14 +26,14 @@ fn get_all() -> HashMap<String, SolverGen> {
         s.enable_preprocessing();
         Box::new(s)
     });
-    {
-        #[cfg(not(target_os = "windows"))]
-        hashmap.insert("glucose-syrup".into(), || {
-            let mut s = Glucose::new();
-            s.enable_syrup();
-            Box::new(s)
-        });
-    }
+    // {
+    //     #[cfg(not(target_os = "windows"))]
+    //     hashmap.insert("glucose-syrup".into(), || {
+    //         let mut s = Glucose::new();
+    //         s.enable_syrup();
+    //         Box::new(s)
+    //     });
+    // }
     hashmap
 }
 
@@ -46,22 +46,7 @@ pub fn show_available() {
     println!("[{}]", s);
 }
 
-pub fn get_from_arg(/*arg: Option<&str>*/is_gr: bool) -> Option<Box<dyn Solver>> {
-    // arg.map(|solver_names| {
-    //     let mut solvers: Vec<Arc<dyn Solver>> = vec![];
-    //     let all_solvers = get_all();
-    //     for solver_name in solver_names.split(',') {
-    //         if let Some(solver_gen) = all_solvers.get(solver_name) {
-    //             solvers.push(solver_gen().into());
-    //         } else {
-    //             panic!("Unknown solver: {}", solver_name);
-    //         }
-    //     }
-    //     if solvers.len() < 1 {
-    //         panic!("No solver specified");
-    //     }
-    //     Box::new(Portfolio::from(solvers)) as Box<dyn Solver>
-    // })
+fn get_default(is_gr: bool) -> Option<Box<dyn Solver>> {
     if is_gr {
         None
     } else {
@@ -75,12 +60,24 @@ pub fn get_from_arg(/*arg: Option<&str>*/is_gr: bool) -> Option<Box<dyn Solver>>
                 s.enable_preprocessing();
                 s
             }),
-            // Arc::new({
-            //     let mut s = Glucose::new();
-            //     s.enable_syrup();
-            //     s
-            // }),
-            // Arc::new(DPLL::new()),
         ])))
     }
+}
+
+pub fn get_from_arg(arg: Option<&str>, is_gr: bool) -> Option<Box<dyn Solver>> {
+    arg.map(|solver_names| {
+        let mut solvers: Vec<Arc<dyn Solver>> = vec![];
+        let all_solvers = get_all();
+        for solver_name in solver_names.split(',') {
+            if let Some(solver_gen) = all_solvers.get(solver_name) {
+                solvers.push(solver_gen().into());
+            } else {
+                panic!("Unknown solver: {}", solver_name);
+            }
+        }
+        if solvers.len() < 1 {
+            panic!("No solver specified");
+        }
+        Box::new(Portfolio::from(solvers)) as Box<dyn Solver>
+    }).or_else(|| get_default(is_gr))
 }

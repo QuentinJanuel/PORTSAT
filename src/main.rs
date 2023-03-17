@@ -59,7 +59,7 @@ fn main() -> Result<(), String> {
         solve(
             af,
             problem,
-            solvers::get_from_arg(/*args.get("-s"),*/ is_gr),
+            solvers::get_from_arg(args.get("-s"), is_gr),
             // args.has("--pr-mss"),
         )?;
     } else {

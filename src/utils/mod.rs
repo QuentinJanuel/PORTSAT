@@ -28,5 +28,42 @@ pub fn details() {
 }
 
 pub fn help() {
-    println!("Help\nWIP");
+    println!(r#"
+Help:
+-h
+    Show this help message.
+-v
+    Show more information.
+--problems
+    Show all available problems.
+--formats
+    Show all available formats.
+--solvers
+    Show all available solvers.
+-s <solver>
+    Specify the solver to use.
+-fo <format>
+    Specify the format of the input file.
+    The format is one of the following:
+        - tgf
+        - apx
+        - loose-apx
+        - paf
+    The default format is paf.
+-f <file>
+    Specify the file to read.
+-p <problem>
+    Specify the problem to solve as <task>-<semantics>.
+    The task is one of the following:
+        - DC (decide credulous)
+        - DS (decide skeptical)
+        - SE (find some extension)
+    The semantics is one of the following:
+        - CO (complete)
+        - GR (grounded)
+        - PR (preferred)
+        - ST (stable)
+-a <param>
+    Specify the parameter for the decide problems.
+    "#);
 }
